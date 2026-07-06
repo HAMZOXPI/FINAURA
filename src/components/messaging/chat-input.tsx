@@ -79,7 +79,7 @@ export function ChatInput({ conversationId, onSent, onTyping, disabled }: ChatIn
       if (content.trim()) messageData.set("content", content.trim());
 
       const result = await sendMessage(messageData);
-      if (result?.error) {
+      if (result && "error" in result && result.error) {
         setError(result.error);
       } else {
         setContent("");
