@@ -1,0 +1,163 @@
+@import "tailwindcss";
+@import "leaflet/dist/leaflet.css";
+
+@theme {
+  --color-brand-50: #f0f7ff;
+  --color-brand-100: #e0effe;
+  --color-brand-200: #b9dffd;
+  --color-brand-300: #7cc4fb;
+  --color-brand-400: #36a5f6;
+  --color-brand-500: #0c87e8;
+  --color-brand-600: #0069c6;
+  --color-brand-700: #0154a1;
+  --color-brand-800: #064785;
+  --color-brand-900: #0b3c6e;
+  --color-brand-950: #072649;
+
+  --color-surface-50: #f8fafc;
+  --color-surface-100: #f1f5f9;
+  --color-surface-200: #e2e8f0;
+  --color-surface-300: #cbd5e1;
+  --color-surface-400: #94a3b8;
+  --color-surface-500: #64748b;
+  --color-surface-600: #475569;
+  --color-surface-700: #334155;
+  --color-surface-800: #1e293b;
+  --color-surface-900: #0f172a;
+  --color-surface-950: #020617;
+
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  html[dir="rtl"] body {
+    text-align: right;
+  }
+
+  body {
+    @apply bg-surface-50 text-surface-900 antialiased;
+  }
+}
+
+@layer utilities {
+  .container-app {
+    @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
+  }
+}
+
+.finaura-price-marker-wrapper {
+  background: transparent !important;
+  border: 0 !important;
+}
+
+.finaura-price-marker-anchor {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform: translate(-50%, -100%);
+  pointer-events: auto;
+}
+
+.finaura-price-marker {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 11px;
+  border-radius: 9999px;
+  border: 2px solid #fff;
+  background: #0069c6;
+  color: #fff;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  line-height: 1.2;
+  white-space: nowrap;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.22);
+  transition:
+    transform 280ms ease,
+    background 280ms ease,
+    box-shadow 280ms ease;
+}
+
+.finaura-price-marker:hover {
+  background: #0154a1;
+  transform: scale(1.04);
+  box-shadow: 0 4px 14px rgba(0, 105, 198, 0.35);
+}
+
+.finaura-price-marker.is-active {
+  background: #0154a1;
+  transform: scale(1.08);
+  box-shadow: 0 6px 18px rgba(0, 105, 198, 0.42);
+  z-index: 1000;
+}
+
+.finaura-price-marker.is-pulse {
+  animation: finaura-marker-pulse 280ms ease;
+}
+
+@keyframes finaura-marker-pulse {
+  0%,
+  100% {
+    transform: scale(1.08);
+  }
+  50% {
+    transform: scale(1.18);
+  }
+}
+
+.finaura-cluster-marker-wrapper {
+  background: transparent !important;
+  border: 0 !important;
+}
+
+.finaura-cluster-marker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 9999px;
+  border: 2px solid #fff;
+  background: #0069c6;
+  color: #fff;
+  font-size: 0.875rem;
+  font-weight: 700;
+  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.24);
+  transition: transform 280ms ease, background 280ms ease;
+}
+
+.finaura-cluster-marker:hover {
+  background: #0154a1;
+  transform: scale(1.06);
+}
+
+.finaura-leaflet-map .marker-cluster-small,
+.finaura-leaflet-map .marker-cluster-medium,
+.finaura-leaflet-map .marker-cluster-large {
+  background: transparent;
+}
+
+.finaura-leaflet-map .marker-cluster-small div,
+.finaura-leaflet-map .marker-cluster-medium div,
+.finaura-leaflet-map .marker-cluster-large div {
+  background: transparent;
+}
+
+.finaura-leaflet-map .leaflet-container {
+  width: 100%;
+  height: 100%;
+  min-height: 420px;
+  background: #e2e8f0;
+  font-family: inherit;
+}
+
+.finaura-leaflet-map .leaflet-pane,
+.finaura-leaflet-map .leaflet-top,
+.finaura-leaflet-map .leaflet-bottom {
+  z-index: 400;
+}

@@ -1,0 +1,11 @@
+create index if not exists idx_properties_owner on public.properties(owner_id);
+create index if not exists idx_properties_city on public.properties(city);
+create index if not exists idx_properties_status on public.properties(status);
+create index if not exists idx_properties_listing_status on public.properties(listing_status);
+create index if not exists idx_properties_price on public.properties(price);
+create index if not exists idx_properties_created_at on public.properties(created_at desc);
+create index if not exists idx_favorites_user on public.favorites(user_id);
+create index if not exists idx_favorites_property on public.favorites(property_id);
+create index if not exists idx_user_subscriptions_user on public.user_subscriptions(user_id);
+create index if not exists idx_contact_inquiries_property on public.contact_inquiries(property_id);
+create index if not exists idx_contact_inquiries_created_at on public.contact_inquiries(created_at desc);
