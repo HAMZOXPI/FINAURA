@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { canCreateListing, canAddFavorite } from "@/services/subscription.service";
 import { getDictionary } from "@/i18n/get-dictionary";
 import { getLocale } from "@/i18n/server";
+import { mapPropertyTypeToDb } from "@/lib/properties/property-type-map";
 import type { ListingStatus, Property } from "@/types/database";
 import {
   buildPropertyUpdatePayload,
@@ -88,11 +89,23 @@ export async function createProperty(formData: FormData) {
   const validationError = validatePropertyForm(data, dict);
   if (validationError) return { error: validationError };
 
-  const { error } = await supabase.from("properties").insert({
+  const selectedPropertyType = data.property_type;
+  const dbPropertyType = mapPropertyTypeToDb(selectedPropertyType);
+  if (!dbPropertyType) return { error: "Invalid property type" };
+
+  const payload = {
     ...data,
+    property_type: dbPropertyType,
     owner_id: user.id,
     is_featured: false,
-  });
+  };
+
+  // Temporary debug logging — remove once the property_type constraint
+  // mismatch is confirmed fixed in production.
+  console.log("Selected property type:", selectedPropertyType);
+  console.log("Payload:", payload);
+
+  const { error } = await supabase.from("properties").insert(payload);
 
   if (error) return { error: error.message };
 
@@ -134,7 +147,18 @@ export async function updateProperty(propertyId: string, formData: FormData) {
     return { noChanges: true as const };
   }
 
-  const payload = buildPropertyUpdatePayload(property, parsed);
+  const basePayload = buildPropertyUpdatePayload(property, parsed);
+
+  const selectedPropertyType = parsed.property_type;
+  const dbPropertyType = mapPropertyTypeToDb(selectedPropertyType);
+  if (!dbPropertyType) return { error: "Invalid property type" };
+
+  const payload = { ...basePayload, property_type: dbPropertyType };
+
+  // Temporary debug logging — remove once the property_type constraint
+  // mismatch is confirmed fixed in production.
+  console.log("Selected property type:", selectedPropertyType);
+  console.log("Payload:", payload);
 
   const { error } = await supabase
     .from("properties")

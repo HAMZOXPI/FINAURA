@@ -144,6 +144,95 @@ export interface AdminGiftAuditLog {
   created_at: string;
 }
 
+export type BoostProductType =
+  | "featured_listing"
+  | "homepage_spotlight"
+  | "search_priority";
+
+export type BoostCampaignStatus =
+  | "pending"
+  | "active"
+  | "expired"
+  | "removed"
+  | "cancelled";
+
+export type BoostHistoryAction =
+  | "created"
+  | "activated"
+  | "outbid"
+  | "position_changed"
+  | "expired"
+  | "removed"
+  | "cancelled"
+  | "extended"
+  | "disabled";
+
+export interface BoostProduct {
+  id: string;
+  name: string;
+  slug: string;
+  description: string;
+  type: BoostProductType;
+  default_price: number;
+  default_duration: number;
+  is_active: boolean;
+  created_at: string;
+}
+
+export interface BoostCampaign {
+  id: string;
+  listing_id: string;
+  user_id: string;
+  product_id: string;
+  position: number;
+  amount: number;
+  status: BoostCampaignStatus;
+  starts_at: string | null;
+  expires_at: string | null;
+  created_at: string;
+  product?: BoostProduct;
+  property?: Property;
+}
+
+export interface BoostHistory {
+  id: string;
+  campaign_id: string;
+  previous_position: number | null;
+  new_position: number | null;
+  amount: number;
+  action: BoostHistoryAction;
+  created_at: string;
+}
+
+export interface BoostSettingsRow {
+  id: number;
+  bid_increment: number;
+  featured_positions: number;
+  updated_at: string;
+  updated_by: string | null;
+}
+
+export type BoostPaymentProvider = "fake" | "stripe";
+
+export type BoostPaymentStatus = "pending" | "succeeded" | "failed" | "cancelled";
+
+export interface BoostPayment {
+  id: string;
+  user_id: string;
+  listing_id: string;
+  product_id: string;
+  campaign_id: string | null;
+  position: number;
+  amount: number;
+  provider: BoostPaymentProvider;
+  provider_payment_id: string | null;
+  status: BoostPaymentStatus;
+  metadata: Record<string, unknown>;
+  expires_at: string;
+  completed_at: string | null;
+  created_at: string;
+}
+
 export type NotificationPriority = "info" | "success" | "warning" | "error";
 
 export type NotificationType =
@@ -164,6 +253,8 @@ export type NotificationType =
   | "new_message"
   | "report_listing"
   | "admin_broadcast"
+  | "boost_outbid"
+  | "boost_expired"
   | "system";
 
 export type NotificationAudience =
@@ -712,6 +803,153 @@ export interface Database {
         Update: Partial<NotificationAuditLog>;
         Relationships: [];
       };
+      boost_products: {
+        Row: BoostProduct;
+        Insert: {
+          id?: string;
+          name: string;
+          slug: string;
+          description?: string;
+          type: BoostProductType;
+          default_price: number;
+          default_duration: number;
+          is_active?: boolean;
+          created_at?: string;
+        };
+        Update: Partial<BoostProduct>;
+        Relationships: [];
+      };
+      boost_campaigns: {
+        Row: BoostCampaign;
+        Insert: {
+          id?: string;
+          listing_id: string;
+          user_id: string;
+          product_id: string;
+          position: number;
+          amount: number;
+          status?: BoostCampaignStatus;
+          starts_at?: string | null;
+          expires_at?: string | null;
+          created_at?: string;
+        };
+        Update: Partial<BoostCampaign>;
+        Relationships: [
+          {
+            foreignKeyName: "boost_campaigns_listing_id_fkey";
+            columns: ["listing_id"];
+            isOneToOne: false;
+            referencedRelation: "properties";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "boost_campaigns_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "boost_campaigns_product_id_fkey";
+            columns: ["product_id"];
+            isOneToOne: false;
+            referencedRelation: "boost_products";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      boost_history: {
+        Row: BoostHistory;
+        Insert: {
+          id?: string;
+          campaign_id: string;
+          previous_position?: number | null;
+          new_position?: number | null;
+          amount: number;
+          action: BoostHistoryAction;
+          created_at?: string;
+        };
+        Update: Partial<BoostHistory>;
+        Relationships: [
+          {
+            foreignKeyName: "boost_history_campaign_id_fkey";
+            columns: ["campaign_id"];
+            isOneToOne: false;
+            referencedRelation: "boost_campaigns";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      boost_settings: {
+        Row: BoostSettingsRow;
+        Insert: {
+          id?: number;
+          bid_increment?: number;
+          featured_positions?: number;
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Update: Partial<BoostSettingsRow>;
+        Relationships: [
+          {
+            foreignKeyName: "boost_settings_updated_by_fkey";
+            columns: ["updated_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      boost_payments: {
+        Row: BoostPayment;
+        Insert: {
+          id?: string;
+          user_id: string;
+          listing_id: string;
+          product_id: string;
+          campaign_id?: string | null;
+          position: number;
+          amount: number;
+          provider?: BoostPaymentProvider;
+          provider_payment_id?: string | null;
+          status?: BoostPaymentStatus;
+          metadata?: Record<string, unknown>;
+          expires_at: string;
+          completed_at?: string | null;
+          created_at?: string;
+        };
+        Update: Partial<BoostPayment>;
+        Relationships: [
+          {
+            foreignKeyName: "boost_payments_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "boost_payments_listing_id_fkey";
+            columns: ["listing_id"];
+            isOneToOne: false;
+            referencedRelation: "properties";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "boost_payments_product_id_fkey";
+            columns: ["product_id"];
+            isOneToOne: false;
+            referencedRelation: "boost_products";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "boost_payments_campaign_id_fkey";
+            columns: ["campaign_id"];
+            isOneToOne: false;
+            referencedRelation: "boost_campaigns";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
     };
     Views: Record<string, never>;
     Functions: {
@@ -737,6 +975,30 @@ export interface Database {
         Args: Record<string, never>;
         Returns: number;
       };
+      place_boost_bid: {
+        Args: {
+          p_listing_id: string;
+          p_user_id: string;
+          p_product_id: string;
+          p_position: number;
+          p_amount: number;
+        };
+        Returns: Record<string, unknown>;
+      };
+      expire_due_boost_campaigns: {
+        Args: Record<string, never>;
+        Returns: number;
+      };
+      admin_force_assign_boost: {
+        Args: {
+          p_listing_id: string;
+          p_product_id: string;
+          p_position: number;
+          p_amount: number;
+          p_admin_user_id: string;
+        };
+        Returns: Record<string, unknown>;
+      };
     };
     Enums: {
       admin_gift_type: AdminGiftType;
@@ -747,6 +1009,11 @@ export interface Database {
       notification_type: NotificationType;
       notification_audience: NotificationAudience;
       notification_audit_action: NotificationAuditAction;
+      boost_product_type: BoostProductType;
+      boost_campaign_status: BoostCampaignStatus;
+      boost_history_action: BoostHistoryAction;
+      boost_payment_provider: BoostPaymentProvider;
+      boost_payment_status: BoostPaymentStatus;
     };
     CompositeTypes: Record<string, never>;
   };

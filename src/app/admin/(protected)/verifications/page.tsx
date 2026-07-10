@@ -5,6 +5,7 @@ import {
   getAdminVerificationRequests,
   getAdminVerificationStats,
 } from "@/services/admin-verification.service";
+import { getAdminRecentActivity } from "@/services/admin.service";
 import type { VerificationRequestStatus } from "@/types/database";
 import { createMetadata } from "@/lib/seo";
 import { getDictionary } from "@/i18n/get-dictionary";
@@ -65,7 +66,7 @@ async function VerificationsContent({
   const status = parseStatus(params.status);
   const dateRange = parseDateFilter(params.date);
 
-  const [stats, list] = await Promise.all([
+  const [stats, list, activity] = await Promise.all([
     getAdminVerificationStats(),
     getAdminVerificationRequests({
       search: params.q,
@@ -74,9 +75,10 @@ async function VerificationsContent({
       dateTo: dateRange.dateTo,
       page,
     }),
+    getAdminRecentActivity(50),
   ]);
 
-  return <AdminVerificationsManager stats={stats} list={list} />;
+  return <AdminVerificationsManager stats={stats} list={list} activity={activity} />;
 }
 
 export default function AdminVerificationsPage(props: AdminVerificationsPageProps) {

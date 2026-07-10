@@ -8,6 +8,8 @@ import {
   PROPERTY_STATUS_VALUES,
   PROPERTY_TYPE_VALUES,
 } from "@/lib/constants";
+import { normalizePropertyType } from "@/lib/property-search";
+import { mapPropertyTypeToDb } from "@/lib/properties/property-type-map";
 import type {
   ListingStatus,
   Property,
@@ -55,12 +57,15 @@ export function parsePropertyForm(formData: FormData): ParsedPropertyForm {
   const imagesRaw = formData.get("images") as string;
   const lat = formData.get("latitude") as string;
   const lng = formData.get("longitude") as string;
+  const rawPropertyType = formData.get("property_type") as string;
 
   return {
     title: (formData.get("title") as string)?.trim() ?? "",
     description: (formData.get("description") as string)?.trim() ?? "",
     price: Number(formData.get("price")),
-    property_type: formData.get("property_type") as PropertyType,
+    // Coerces legacy/alias values (e.g. "house", "land") to the canonical
+    // Moroccan values accepted by the properties_property_type_check constraint.
+    property_type: (normalizePropertyType(rawPropertyType) ?? rawPropertyType) as PropertyType,
     status: formData.get("status") as PropertyStatus,
     listing_status: ((formData.get("listing_status") as ListingStatus) || "draft") as ListingStatus,
     bedrooms: Number(formData.get("bedrooms") || 0),
@@ -92,12 +97,14 @@ export function validatePropertyForm(
   if (!Number.isFinite(data.price) || data.price < 0) return `${dict.form.price} is invalid`;
   if (!Number.isFinite(data.area_sqft) || data.area_sqft <= 0) return `${dict.form.area} is invalid`;
   if (!PROPERTY_TYPE_VALUES.includes(data.property_type)) return "Invalid property type";
+  if (!mapPropertyTypeToDb(data.property_type)) {
+    return "This property type is not available yet. Please choose a different type.";
+  }
   if (!PROPERTY_STATUS_VALUES.includes(data.status)) return "Invalid property status";
   if (!LISTING_STATUS_VALUES.includes(data.listing_status)) return "Invalid listing status";
   if (!data.address) return `${dict.form.address} is required`;
   if (!data.city) return `${dict.form.city} is required`;
-  if (!data.state) return `${dict.form.region} is required`;
-  if (!data.zip_code) return `${dict.form.postalCode} is required`;
+  // Region (state) and postal code (zip_code) are optional — no validation here.
   if (data.images.length === 0) return `${dict.form.imagesTitle} is required`;
   if (data.bedrooms < 0 || data.bathrooms < 0) return "Invalid room count";
   return null;

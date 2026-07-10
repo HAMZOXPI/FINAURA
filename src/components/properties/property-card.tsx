@@ -6,6 +6,9 @@ import { motion } from "framer-motion";
 import { Bed, Bath, Maximize, MapPin, Calendar } from "lucide-react";
 import type { Property, PropertyStatus } from "@/types/database";
 import type { Locale } from "@/i18n/config";
+import type { PremiumDisplayMeta } from "@/types/property-display";
+import { resolvePremiumMeta } from "@/types/property-display";
+import { PremiumBadgeGroup } from "@/components/ui/finaura-premium-badge";
 import {
   cn,
   formatArea,
@@ -21,6 +24,7 @@ import { useTranslation } from "@/i18n/locale-provider";
 interface PropertyCardProps {
   property: Property;
   variant?: "grid" | "list";
+  premiumMeta?: PremiumDisplayMeta;
 }
 
 function formatCardPrice(price: number, status: PropertyStatus, locale: Locale): string {
@@ -48,7 +52,35 @@ function statusBadgeClass(status: PropertyStatus): string {
   }
 }
 
-export function PropertyCard({ property, variant = "grid" }: PropertyCardProps) {
+function getFeaturedStyles(isFeatured: boolean) {
+  if (!isFeatured) {
+    return {
+      card: "border-surface-200/80 shadow-[0_2px_16px_-4px_rgba(0,0,0,0.08)] [@media(hover:hover)_and_(pointer:fine)]:hover:shadow-[0_16px_40px_-12px_rgba(0,0,0,0.14)]",
+      image: "",
+      imageHover: "group-hover:scale-105",
+      glow: "",
+      accent: "",
+    };
+  }
+
+  return {
+    card: cn(
+      "border-amber-300/55 ring-1 ring-amber-200/45",
+      "shadow-[0_4px_28px_rgba(251,191,36,0.14),0_2px_16px_-4px_rgba(0,0,0,0.08)]",
+      "[@media(hover:hover)_and_(pointer:fine)]:hover:scale-[1.02]",
+      "[@media(hover:hover)_and_(pointer:fine)]:hover:shadow-[0_24px_52px_-14px_rgba(251,191,36,0.32),0_8px_24px_-8px_rgba(0,0,0,0.12)]",
+      "[@media(hover:hover)_and_(pointer:fine)]:hover:ring-amber-300/60"
+    ),
+    image: "ring-[1.5px] ring-inset ring-amber-400/35",
+    imageHover:
+      "group-hover:scale-[1.03] [@media(hover:hover)_and_(pointer:fine)]:group-hover:brightness-[1.04]",
+    glow: "pointer-events-none absolute -inset-px z-0 rounded-[21px] bg-gradient-to-br from-amber-400/15 via-amber-500/5 to-transparent opacity-70 transition-opacity duration-[250ms] [@media(hover:hover)_and_(pointer:fine)]:group-hover:opacity-100",
+    accent:
+      "pointer-events-none absolute inset-x-0 top-0 z-[2] h-[2px] bg-gradient-to-r from-amber-300/80 via-yellow-400/90 to-amber-400/80",
+  };
+}
+
+export function PropertyCard({ property, variant = "grid", premiumMeta }: PropertyCardProps) {
   const { t, locale } = useTranslation();
   const statusLabel = getPropertyStatusLabel(property.status, t);
   const showDetails = property.property_type !== "terrain";
@@ -56,26 +88,58 @@ export function PropertyCard({ property, variant = "grid" }: PropertyCardProps) 
   const agentAvatar = property.owner?.avatar_url;
   const detailHref = `/properties/${property.id}`;
   const isList = variant === "list";
+  const isFeatured = Boolean(property.is_featured);
+  const premium = resolvePremiumMeta(property, premiumMeta);
+  const styles = getFeaturedStyles(isFeatured);
+
+  const cardMotion = isFeatured
+    ? {
+        initial: { opacity: 0, y: 12 },
+        animate: { opacity: 1, y: 0 },
+        transition: { duration: 0.5, ease: "easeOut" as const },
+      }
+    : {
+        whileHover: { y: isList ? -2 : -4 },
+        transition: { duration: 0.25, ease: "easeOut" as const },
+      };
+
+  const badgeRow = isFeatured && premium && (
+    <PremiumBadgeGroup
+      variant={premium.variant ?? "premium"}
+      homepagePosition={premium.homepagePosition}
+    />
+  );
 
   if (isList) {
     return (
       <motion.article
-        whileHover={{ y: -2 }}
-        transition={{ duration: 0.25, ease: "easeOut" }}
-        className="group flex flex-col overflow-hidden rounded-[20px] border border-surface-200/80 bg-white shadow-[0_2px_16px_-4px_rgba(0,0,0,0.08)] transition-shadow duration-[250ms] hover:shadow-[0_12px_32px_-8px_rgba(0,0,0,0.12)] sm:flex-row"
+        {...cardMotion}
+        className={cn(
+          "group relative flex flex-col overflow-hidden rounded-[20px] border bg-white transition-all duration-[250ms] sm:flex-row",
+          styles.card
+        )}
       >
+        {isFeatured && <div className={styles.glow} aria-hidden />}
         <div className="relative aspect-video w-full shrink-0 sm:aspect-auto sm:h-56 sm:w-72 md:w-80">
+          {isFeatured && <div className={styles.accent} aria-hidden />}
+          {isFeatured && (
+            <div className="pointer-events-none absolute inset-y-0 start-0 z-[1] w-1 bg-gradient-to-b from-amber-300 via-amber-400 to-amber-500" />
+          )}
           <Link href={detailHref} className="block h-full w-full" tabIndex={-1} aria-hidden>
             <Image
               src={property.images[0] || PLACEHOLDER_IMAGE}
               alt={property.title}
               fill
               loading="lazy"
-              className="object-cover transition-transform duration-[250ms] group-hover:scale-105"
+              className={cn(
+                "object-cover transition-all duration-[250ms] ease-out",
+                styles.image,
+                styles.imageHover
+              )}
               sizes="320px"
             />
           </Link>
-          <div className="absolute start-3 top-3">
+          <div className="absolute start-3 top-3 z-10 flex flex-wrap gap-2">
             <span
               className={cn(
                 "inline-flex items-center rounded-lg bg-white/95 px-2.5 py-1 text-xs font-semibold shadow-sm backdrop-blur-sm",
@@ -84,6 +148,7 @@ export function PropertyCard({ property, variant = "grid" }: PropertyCardProps) 
             >
               {statusLabel}
             </span>
+            {badgeRow}
           </div>
           <div className="absolute end-3 top-3 z-10">
             <FavoriteButton propertyId={property.id} variant="overlay" />
@@ -148,25 +213,33 @@ export function PropertyCard({ property, variant = "grid" }: PropertyCardProps) 
 
   return (
     <motion.article
-      whileHover={{ y: -4 }}
-      transition={{ duration: 0.25, ease: "easeOut" }}
-      className="group flex h-full flex-col overflow-hidden rounded-[20px] border border-surface-200/80 bg-white shadow-[0_2px_16px_-4px_rgba(0,0,0,0.08)] transition-shadow duration-[250ms] hover:shadow-[0_16px_40px_-12px_rgba(0,0,0,0.14)]"
+      {...cardMotion}
+      className={cn(
+        "group relative flex h-full flex-col overflow-hidden rounded-[20px] border bg-white transition-all duration-[250ms]",
+        styles.card
+      )}
     >
+      {isFeatured && <div className={styles.glow} aria-hidden />}
       <div className="relative aspect-video overflow-hidden">
+        {isFeatured && <div className={styles.accent} aria-hidden />}
         <Link href={detailHref} className="block h-full w-full" tabIndex={-1} aria-hidden>
           <Image
             src={property.images[0] || PLACEHOLDER_IMAGE}
             alt={property.title}
             fill
             loading="lazy"
-            className="object-cover transition-transform duration-[250ms] ease-out group-hover:scale-105"
+            className={cn(
+              "object-cover transition-all duration-[250ms] ease-out",
+              styles.image,
+              styles.imageHover
+            )}
             sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 25vw"
           />
         </Link>
 
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 transition-opacity duration-[250ms] group-hover:opacity-100" />
 
-        <div className="absolute start-3 top-3 flex flex-wrap gap-2">
+        <div className="absolute start-3 top-3 z-10 flex flex-wrap gap-2">
           <span
             className={cn(
               "inline-flex items-center rounded-lg bg-white/95 px-2.5 py-1 text-xs font-semibold shadow-sm backdrop-blur-sm",
@@ -175,11 +248,7 @@ export function PropertyCard({ property, variant = "grid" }: PropertyCardProps) 
           >
             {statusLabel}
           </span>
-          {property.is_featured && (
-            <span className="inline-flex items-center rounded-lg bg-amber-400/95 px-2.5 py-1 text-xs font-semibold text-amber-950 shadow-sm backdrop-blur-sm">
-              {t.properties.featured}
-            </span>
-          )}
+          {badgeRow}
         </div>
 
         <div className="absolute end-3 top-3 z-10">

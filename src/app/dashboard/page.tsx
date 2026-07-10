@@ -1,114 +1,160 @@
-import Link from "next/link";
-import { Home, Heart, Eye, MessageSquare } from "lucide-react";
-import { PropertyCard } from "@/components/properties/property-card";
-import { PropertyGrid } from "@/components/properties/property-grid";
-import { Button } from "@/components/ui/button";
+import { fetchBoostCenterData } from "@/actions/boost.actions";
+import { DashboardWorkspace } from "@/components/dashboard/workspace/dashboard-workspace";
 import { resolveUserId } from "@/lib/supabase/auth";
-import { getUserFavorites } from "@/services/property.service";
+import {
+  buildAccountHealth,
+  buildDashboardActivity,
+  buildDashboardRecommendations,
+  buildListingAnalyticsMetrics,
+  buildListingPerformanceRows,
+  buildProfileCompleteness,
+  buildSmartInsights,
+  buildVerificationInsights,
+  countDraftListings,
+  getDashboardSubtitleKey,
+  isPremiumPlan,
+} from "@/lib/dashboard/workspace-display";
+import { getUserCreditBalance } from "@/services/gift.service";
 import { getDashboardStats } from "@/services/dashboard.service";
-import { getEffectiveUserPlan } from "@/services/subscription.service";
-import { getDictionary } from "@/i18n/get-dictionary";
-import { getLocale } from "@/i18n/server";
-import { DashboardPlanCard } from "@/components/dashboard/dashboard-plan-card";
+import { getUserNotifications } from "@/services/notification.service";
+import { getUserFavorites, getUserProperties } from "@/services/property.service";
+import { getEffectiveUserPlan, getUserSubscription } from "@/services/subscription.service";
+import { getProfile, getCurrentUser } from "@/services/user.service";
+import {
+  getLatestVerificationRequest,
+  resolveSellerVerificationStatus,
+} from "@/services/verification.service";
+import type { VerificationRequest } from "@/types/database";
 
 export default async function DashboardOverviewPage() {
-  const locale = await getLocale();
-  const dict = getDictionary(locale);
   const userId = await resolveUserId();
+  const user = await getCurrentUser();
 
-  const [stats, favorites, effectivePlan] = await Promise.all([
+  const [
+    stats,
+    favorites,
+    effectivePlan,
+    profile,
+    properties,
+    subscription,
+    boostCredits,
+    boostData,
+    latestVerificationRaw,
+    recentNotifications,
+  ] = await Promise.all([
     getDashboardStats(userId),
     getUserFavorites(userId),
     getEffectiveUserPlan(userId),
+    getProfile(userId),
+    getUserProperties(userId),
+    getUserSubscription(userId),
+    getUserCreditBalance(userId, "boost_credits"),
+    fetchBoostCenterData(),
+    getLatestVerificationRequest(userId),
+    getUserNotifications(userId, 6),
   ]);
 
-  const statCards = [
+  if (!effectivePlan) {
+    return null;
+  }
+
+  const latestVerification = latestVerificationRaw as VerificationRequest | null;
+  const verificationStatus = resolveSellerVerificationStatus(
     {
-      label: dict.dashboard.myListings,
-      value: stats.listings_count,
-      icon: Home,
-      href: "/dashboard/properties",
-      color: "bg-brand-50 text-brand-600",
+      is_verified: profile?.is_verified,
+      verified_seller: profile?.verified_seller,
     },
-    {
-      label: dict.dashboard.published,
-      value: stats.published_count,
-      icon: Eye,
-      href: "/dashboard/properties",
-      color: "bg-emerald-50 text-emerald-600",
-    },
-    {
-      label: dict.dashboard.favorites,
-      value: stats.favorites_count,
-      icon: Heart,
-      href: "/dashboard/favorites",
-      color: "bg-red-50 text-red-500",
-    },
-    {
-      label: dict.dashboard.messages,
-      value: stats.messages_count,
-      icon: MessageSquare,
-      href: "/dashboard/messages",
-      color: "bg-violet-50 text-violet-600",
-    },
-  ];
+    latestVerification
+  );
+
+  const draftsCount = countDraftListings(properties);
+  const planSlug = subscription?.plan?.slug ?? null;
+  const isPremium = isPremiumPlan(planSlug);
+  const userName = profile?.full_name?.split(" ")[0] ?? user?.email?.split("@")[0] ?? "";
+  const email = profile?.email ?? user?.email ?? "";
+
+  const profileFields = buildProfileCompleteness(profile, email, verificationStatus);
+  const subtitleKey = getDashboardSubtitleKey({
+    stats,
+    publishedCount: stats.published_count,
+    verificationStatus,
+  });
+
+  const activity = buildDashboardActivity({
+    properties,
+    boostHistory: boostData.history,
+    latestVerification,
+    verificationStatus,
+    notifications: recentNotifications,
+    messagesCount: stats.messages_count,
+  });
+
+  const recommendations = buildDashboardRecommendations({
+    profileFields,
+    verificationStatus,
+    listingsCount: stats.listings_count,
+    publishedCount: stats.published_count,
+    activeBoosts: boostData.active.length,
+    isPremium,
+    listingLimitAllowed: effectivePlan.listingLimit.allowed,
+  });
+
+  const listingMetrics = buildListingAnalyticsMetrics({
+    properties,
+    activeBoosts: boostData.active,
+    draftsCount,
+    publishedCount: stats.published_count,
+    listingsCount: stats.listings_count,
+  });
+
+  const performanceRows = buildListingPerformanceRows({
+    properties,
+    activeBoosts: boostData.active,
+  });
+
+  const verificationData = buildVerificationInsights({
+    verificationStatus,
+    latestVerification,
+  });
+
+  const accountHealth = buildAccountHealth({
+    profile,
+    profileFields,
+    isPremium,
+    verificationStatus,
+  });
+
+  const smartInsights = buildSmartInsights({
+    properties,
+    profileFields,
+    verificationStatus,
+    activeBoosts: boostData.active,
+    isPremium,
+    expiresAt: subscription?.current_period_end ?? null,
+  });
 
   return (
-    <div>
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-surface-900">
-            {dict.dashboard.metaOverview}
-          </h1>
-          <p className="mt-1 text-sm text-surface-500">{dict.dashboard.welcome}</p>
-        </div>
-        <Button href="/dashboard/new">{dict.dashboard.newListing}</Button>
-      </div>
-
-      {effectivePlan && <DashboardPlanCard initialPlan={effectivePlan} />}
-
-      <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {statCards.map((stat) => (
-          <Link
-            key={stat.label}
-            href={stat.href}
-            className="rounded-2xl border border-surface-200 bg-white p-5 transition-shadow hover:shadow-md"
-          >
-            <div className="flex items-center gap-3">
-              <div
-                className={`flex h-10 w-10 items-center justify-center rounded-xl ${stat.color}`}
-              >
-                <stat.icon className="h-5 w-5" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-surface-900">{stat.value}</p>
-                <p className="text-sm text-surface-500">{stat.label}</p>
-              </div>
-            </div>
-          </Link>
-        ))}
-      </div>
-
-      {favorites.length > 0 && (
-        <section className="mt-12">
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold text-surface-900">
-              {dict.dashboard.recentFavorites}
-            </h2>
-            <Link
-              href="/dashboard/favorites"
-              className="text-sm font-medium text-brand-600 hover:underline"
-            >
-              {dict.dashboard.viewAll}
-            </Link>
-          </div>
-          <PropertyGrid className="mt-4">
-            {favorites.slice(0, 3).map((property) => (
-              <PropertyCard key={property.id} property={property} />
-            ))}
-          </PropertyGrid>
-        </section>
-      )}
-    </div>
+    <DashboardWorkspace
+      userName={userName}
+      subtitleKey={subtitleKey}
+      isPremium={isPremium}
+      effectivePlan={effectivePlan}
+      planSlug={planSlug}
+      expiresAt={subscription?.current_period_end ?? null}
+      boostCredits={boostCredits}
+      stats={stats}
+      draftsCount={draftsCount}
+      verificationStatus={verificationStatus}
+      boostData={boostData}
+      activity={activity}
+      profileFields={profileFields}
+      recommendations={recommendations}
+      favorites={favorites}
+      listingMetrics={listingMetrics}
+      performanceRows={performanceRows}
+      verificationData={verificationData}
+      accountHealth={accountHealth}
+      smartInsights={smartInsights}
+    />
   );
 }

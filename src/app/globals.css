@@ -49,6 +49,38 @@
   }
 }
 
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes premium-shimmer-border {
+  0%,
+  100% {
+    background-position: 200% 0;
+    opacity: 0.35;
+  }
+  50% {
+    background-position: -200% 0;
+    opacity: 0.85;
+  }
+}
+
+@keyframes ribbon-shine {
+  0% {
+    transform: translateX(-150%) skewX(-18deg);
+    opacity: 0;
+  }
+  25% {
+    opacity: 0.55;
+  }
+  100% {
+    transform: translateX(250%) skewX(-18deg);
+    opacity: 0;
+  }
+}
+
 .finaura-price-marker-wrapper {
   background: transparent !important;
   border: 0 !important;

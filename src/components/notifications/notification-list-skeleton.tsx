@@ -10,13 +10,19 @@ export function NotificationListSkeleton({
   compact = false,
 }: NotificationListSkeletonProps) {
   return (
-    <div className="space-y-2 p-2">
+    <div className="space-y-1.5 p-1.5 sm:space-y-2 sm:p-2">
       {Array.from({ length: count }).map((_, index) => (
         <div
           key={index}
-          className="flex animate-pulse gap-3 rounded-xl border border-surface-100 bg-surface-50/50 p-3"
+          className="flex animate-pulse gap-2.5 rounded-lg border border-surface-100 bg-surface-50/50 p-2.5 sm:gap-3 sm:rounded-xl sm:p-3"
         >
-          <div className={compact ? "h-8 w-8 rounded-lg bg-surface-200" : "h-10 w-10 rounded-xl bg-surface-200"} />
+          <div
+            className={
+              compact
+                ? "h-7 w-7 rounded-md bg-surface-200 sm:h-8 sm:w-8 sm:rounded-lg"
+                : "h-10 w-10 rounded-xl bg-surface-200"
+            }
+          />
           <div className="flex-1 space-y-2">
             <div className="h-3.5 w-2/3 rounded bg-surface-200" />
             <div className="h-3 w-full rounded bg-surface-100" />

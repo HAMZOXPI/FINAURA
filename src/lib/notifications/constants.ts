@@ -50,6 +50,10 @@ export const NOTIFICATION_TYPES: NotificationType[] = [
 
   "report_listing",
 
+  "boost_outbid",
+
+  "boost_expired",
+
   "admin_broadcast",
 
   "system",
@@ -108,6 +112,10 @@ export const NOTIFICATION_TEMPLATE_KEYS = [
 
   "report_listing",
 
+  "boost_outbid",
+
+  "boost_expired",
+
 ] as const;
 
 
@@ -155,6 +163,10 @@ export const TEMPLATE_DEFAULTS: Record<
   new_message: { type: "new_message", priority: "info" },
 
   report_listing: { type: "report_listing", priority: "warning" },
+
+  boost_outbid: { type: "boost_outbid", priority: "warning" },
+
+  boost_expired: { type: "boost_expired", priority: "info" },
 
 };
 

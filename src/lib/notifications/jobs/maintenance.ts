@@ -1,4 +1,5 @@
 import { markExpiredGifts } from "@/services/gift.service";
+import { BoostBiddingService } from "@/services/boost-bidding.service";
 
 import { createClient } from "@/lib/supabase/server";
 
@@ -130,6 +131,12 @@ export async function processPremiumExpiringNotifications(): Promise<number> {
 
 
 
+export async function processExpiredBoostCampaigns(): Promise<number> {
+  return BoostBiddingService.expireDueCampaigns();
+}
+
+
+
 export async function runNotificationMaintenanceJobs(): Promise<{
 
   cleaned: number;
@@ -138,13 +145,15 @@ export async function runNotificationMaintenanceJobs(): Promise<{
 
   premiumExpiring: number;
 
+  expiredBoosts: number;
+
 }> {
 
   const { cleanupOldNotifications } = await import("@/services/notification.service");
 
 
 
-  const [cleaned, expiredGifts, premiumExpiring] = await Promise.all([
+  const [cleaned, expiredGifts, premiumExpiring, expiredBoosts] = await Promise.all([
 
     cleanupOldNotifications(),
 
@@ -152,11 +161,13 @@ export async function runNotificationMaintenanceJobs(): Promise<{
 
     processPremiumExpiringNotifications(),
 
+    processExpiredBoostCampaigns(),
+
   ]);
 
 
 
-  return { cleaned, expiredGifts, premiumExpiring };
+  return { cleaned, expiredGifts, premiumExpiring, expiredBoosts };
 
 }
 

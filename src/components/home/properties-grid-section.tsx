@@ -1,12 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Crown } from "lucide-react";
 import type { Property } from "@/types/database";
 import { PropertyCard } from "@/components/properties/property-card";
 import { PROPERTY_GRID_CLASS } from "@/components/properties/property-grid";
 import { MotionSection, MotionStagger, MotionItem } from "@/components/home/motion-section";
+import { PremiumSectionCrownIcon } from "@/components/home/premium-section-crown-icon";
+import { PremiumBoostCtaCard } from "@/components/home/premium-boost-cta-card";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "@/i18n/locale-provider";
 
 interface PropertiesGridSectionProps {
   title: string;
@@ -16,6 +19,7 @@ interface PropertiesGridSectionProps {
   viewAllLabel: string;
   viewAllHref?: string;
   variant?: "light" | "muted";
+  premiumIdentity?: boolean;
 }
 
 export function PropertiesGridSection({
@@ -26,18 +30,54 @@ export function PropertiesGridSection({
   viewAllLabel,
   viewAllHref = "/properties",
   variant = "light",
+  premiumIdentity = false,
 }: PropertiesGridSectionProps) {
+  const { t } = useTranslation();
   const bg = variant === "muted" ? "bg-surface-50/80" : "bg-white";
 
   return (
-    <section className={`${bg} py-20 lg:py-28`}>
+    <section
+      className={cn(
+        "py-20 lg:py-28",
+        premiumIdentity
+          ? "relative bg-gradient-to-b from-amber-50/50 via-white to-white"
+          : bg
+      )}
+    >
+      {premiumIdentity && (
+        <div
+          className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-amber-400/40 to-transparent"
+          aria-hidden
+        />
+      )}
+
       <div className="container-app">
         <MotionSection className="flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-end">
           <div className="max-w-xl">
-            <h2 className="text-3xl font-bold tracking-tight text-surface-900 sm:text-4xl">
-              {title}
-            </h2>
-            <p className="mt-3 text-lg text-surface-500">{subtitle}</p>
+            {premiumIdentity ? (
+              <>
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-amber-500/95 via-yellow-500/95 to-amber-600/95 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-amber-950 shadow-[0_2px_12px_rgba(251,191,36,0.35)] ring-1 ring-amber-300/45">
+                  <Crown className="h-3 w-3 fill-amber-900/25 text-amber-950" strokeWidth={2.25} />
+                  {t.home.featuredBadge}
+                </span>
+                <h2 className="mt-4 flex items-center gap-3 text-3xl font-bold tracking-tight text-surface-900 sm:gap-3.5 sm:text-4xl">
+                  <PremiumSectionCrownIcon />
+                  {title}
+                </h2>
+                <div
+                  className="mt-4 h-0.5 w-14 rounded-full bg-gradient-to-r from-amber-400 via-yellow-500 to-amber-400/60"
+                  aria-hidden
+                />
+                <p className="mt-4 text-lg text-surface-600">{subtitle}</p>
+              </>
+            ) : (
+              <>
+                <h2 className="text-3xl font-bold tracking-tight text-surface-900 sm:text-4xl">
+                  {title}
+                </h2>
+                <p className="mt-3 text-lg text-surface-500">{subtitle}</p>
+              </>
+            )}
           </div>
           <Link
             href={viewAllHref}
@@ -47,6 +87,12 @@ export function PropertiesGridSection({
             <ArrowRight className="h-4 w-4" />
           </Link>
         </MotionSection>
+
+        {premiumIdentity && (
+          <MotionSection delay={0.05} className="mt-10">
+            <PremiumBoostCtaCard />
+          </MotionSection>
+        )}
 
         {properties.length === 0 ? (
           <MotionSection delay={0.1} className="mt-12">
@@ -62,7 +108,7 @@ export function PropertiesGridSection({
             </div>
           </MotionSection>
         ) : (
-          <MotionStagger className={cn("mt-12", PROPERTY_GRID_CLASS)}>
+          <MotionStagger className={cn(premiumIdentity ? "mt-10" : "mt-12", PROPERTY_GRID_CLASS)}>
             {properties.map((property) => (
               <MotionItem key={property.id}>
                 <PropertyCard property={property} />

@@ -8,6 +8,7 @@ import type { Profile } from "@/types/database";
 import type { UserSubscription, SubscriptionPlan } from "@/types/database";
 import { useTranslation } from "@/i18n/locale-provider";
 import { formatPlanPrice, interpolate } from "@/lib/utils";
+import { getPlanDisplayPrice } from "@/lib/pricing/pricing-display";
 
 interface ProfileSettingsFormProps {
   profile: Profile | null;
@@ -85,7 +86,7 @@ export function ProfileSettingsForm({
                 {subscription.plan.name}
               </p>
               <p className="text-sm text-surface-500">
-                {formatPlanPrice(subscription.plan.price_monthly, locale)}
+                {formatPlanPrice(getPlanDisplayPrice(subscription.plan), locale)}
                 {t.dashboard.perMonth} · {subscription.status}
               </p>
               {subscription.plan.max_listings !== null && (

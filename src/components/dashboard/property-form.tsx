@@ -159,6 +159,16 @@ export function PropertyForm({
     });
   };
 
+  // Using a plain `onSubmit` handler (instead of the `action` prop) intentionally
+  // opts out of React 19's automatic form reset, which otherwise clears every
+  // uncontrolled field (title, price, property type, address, etc.) as soon as
+  // the submit handler returns -- regardless of whether the request succeeded
+  // or failed. This preserves all entered data when an error occurs.
+  const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    handleSubmit(new FormData(event.currentTarget));
+  };
+
   const propertyTypeOptions = PROPERTY_TYPE_VALUES.map((type) => ({
     value: type,
     label: getPropertyTypeLabel(type, t),
@@ -180,7 +190,7 @@ export function PropertyForm({
   ];
 
   return (
-    <form action={handleSubmit} className="space-y-8">
+    <form onSubmit={onSubmit} className="space-y-8">
       <input type="hidden" name="country" value={DEFAULT_COUNTRY} />
 
       {toast && (
@@ -375,14 +385,12 @@ export function PropertyForm({
             id="state"
             name="state"
             label={t.form.region}
-            required
             defaultValue={property?.state}
           />
           <Input
             id="zip_code"
             name="zip_code"
             label={t.form.postalCode}
-            required
             defaultValue={property?.zip_code}
           />
         </div>

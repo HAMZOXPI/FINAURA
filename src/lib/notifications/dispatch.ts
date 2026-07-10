@@ -419,3 +419,24 @@ export async function notifyCustom(
 }
 
 
+
+export async function notifyBoostOutbid(params: {
+  userId: string;
+  listingId: string;
+  position: number;
+  winningAmount: number;
+}) {
+  await dispatchTemplate(
+    params.userId,
+    "boost_outbid",
+    {
+      position: String(params.position),
+      winningAmount: String(params.winningAmount),
+      listingId: params.listingId,
+    },
+    "fr",
+    `boost_outbid:${params.listingId}:${params.position}:${params.winningAmount}`
+  );
+}
+
+

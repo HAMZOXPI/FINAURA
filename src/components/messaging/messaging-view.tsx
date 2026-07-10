@@ -1,11 +1,17 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { motion } from "framer-motion";
 import { MessageSquare } from "lucide-react";
 import type { ChatMessage, ConversationWithMeta } from "@/types/database";
 import { ChatWindow } from "@/components/messaging/chat-window";
+import { ChatMessageSkeleton } from "@/components/messaging/chat-message-skeleton";
 import { ConversationList } from "@/components/messaging/conversation-list";
 import { MessagingEmptyState } from "@/components/messaging/messaging-empty-state";
+import { MessagingInfoPanel } from "@/components/messaging/messaging-info-panel";
+import { MessagingSectionErrorBoundary } from "@/components/messaging/messaging-section-error-boundary";
+import { useMessagingPresence } from "@/hooks/use-online-presence";
+import { resolveOtherParticipant } from "@/lib/messaging/messaging-display";
 import { createClient } from "@/lib/supabase/client";
 import { useTranslation } from "@/i18n/locale-provider";
 import { cn } from "@/lib/utils";
@@ -22,9 +28,9 @@ export function MessagingView({
   initialConversationId = null,
 }: MessagingViewProps) {
   const { t } = useTranslation();
-  const [conversations, setConversations] = useState(initialConversations);
+  const [conversations, setConversations] = useState(initialConversations ?? []);
   const [activeConversationId, setActiveConversationId] = useState<string | null>(
-    initialConversationId ?? initialConversations[0]?.id ?? null
+    initialConversationId ?? (initialConversations ?? [])[0]?.id ?? null
   );
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [loadingMessages, setLoadingMessages] = useState(false);
@@ -33,13 +39,29 @@ export function MessagingView({
   );
 
   useEffect(() => {
-    setConversations(initialConversations);
+    setConversations(initialConversations ?? []);
   }, [initialConversations]);
 
+  useEffect(() => {
+    const isMobileChat = mobileView === "chat" && window.matchMedia("(max-width: 767px)").matches;
+    if (!isMobileChat) return;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [mobileView]);
+
   const activeConversation = useMemo(
-    () => conversations.find((item) => item.id === activeConversationId) ?? null,
+    () => (conversations ?? []).find((item) => item?.id === activeConversationId) ?? null,
     [conversations, activeConversationId]
   );
+
+  const watchIds = activeConversation
+    ? [resolveOtherParticipant(activeConversation, userId).id].filter(Boolean)
+    : [];
+  const { isOnline } = useMessagingPresence(userId, watchIds);
 
   const loadMessages = useCallback(async (conversationId: string) => {
     setLoadingMessages(true);
@@ -64,63 +86,96 @@ export function MessagingView({
     setMobileView("chat");
   };
 
-  const hasConversations = conversations.length > 0;
+  const hasConversations = (conversations ?? []).length > 0;
+  const isMobileChatOpen = mobileView === "chat";
 
   return (
-    <div className="grid min-h-[620px] gap-4 lg:grid-cols-[340px_minmax(0,1fr)] lg:gap-6">
+    <div className="grid min-h-0 gap-4 md:min-h-[680px] md:grid-cols-[300px_minmax(0,1fr)] md:gap-5 xl:grid-cols-[300px_minmax(0,1fr)_300px]">
       <div
         className={cn(
-          "min-h-[520px] rounded-[24px] border border-surface-200/80 bg-surface-50/70 p-3 sm:p-4",
-          mobileView === "chat" ? "hidden lg:block" : "block"
+          "min-h-[480px] overflow-hidden rounded-[24px] border border-white/70 bg-white/80 p-3 shadow-[0_12px_40px_-16px_rgba(0,0,0,0.12)] backdrop-blur-xl sm:min-h-[620px] sm:p-4",
+          isMobileChatOpen ? "hidden md:flex md:flex-col" : "flex flex-col"
         )}
       >
         {hasConversations ? (
-          <ConversationList
-            userId={userId}
-            initialConversations={conversations}
-            activeConversationId={activeConversationId}
-            onSelect={handleSelectConversation}
-            onConversationsChange={setConversations}
-          />
+          <MessagingSectionErrorBoundary name="ConversationList">
+            <ConversationList
+              userId={userId}
+              initialConversations={conversations ?? []}
+              activeConversationId={activeConversationId}
+              onSelect={handleSelectConversation}
+              onConversationsChange={(next) => setConversations(next ?? [])}
+              className="h-full"
+            />
+          </MessagingSectionErrorBoundary>
         ) : (
           <MessagingEmptyState />
         )}
       </div>
 
-      <div className={cn("min-h-[520px]", mobileView === "list" ? "hidden lg:block" : "block")}>
+      <div
+        className={cn(
+          "min-h-0",
+          isMobileChatOpen
+            ? "fixed inset-0 z-[60] flex h-[100dvh] max-h-[100dvh] flex-col bg-white md:static md:z-auto md:block md:h-auto md:max-h-none"
+            : "hidden min-h-[480px] md:block md:min-h-[620px]"
+        )}
+      >
         {activeConversation && !loadingMessages ? (
-          <ChatWindow
-            conversation={activeConversation}
-            initialMessages={messages}
-            currentUserId={userId}
-            showBackButton
-            onBack={() => setMobileView("list")}
-            onReadStateChange={(lastReadAt) => {
-              setConversations((current) =>
-                current.map((item) =>
-                  item.id === activeConversation.id
-                    ? { ...item, other_last_read_at: lastReadAt, unread_count: 0 }
-                    : item
-                )
-              );
-            }}
-          />
+          <MessagingSectionErrorBoundary name="ChatWindow">
+            <ChatWindow
+              conversation={activeConversation}
+              initialMessages={messages ?? []}
+              currentUserId={userId}
+              showBackButton
+              onBack={() => setMobileView("list")}
+              onReadStateChange={(lastReadAt) => {
+                setConversations((current) =>
+                  (current ?? []).map((item) =>
+                    item?.id === activeConversation.id
+                      ? { ...item, other_last_read_at: lastReadAt, unread_count: 0 }
+                      : item
+                  )
+                );
+              }}
+              onMessagesChange={(next) => setMessages(Array.isArray(next) ? next : [])}
+            />
+          </MessagingSectionErrorBoundary>
         ) : activeConversation && loadingMessages ? (
-          <div className="flex h-full min-h-[520px] items-center justify-center rounded-[24px] border border-surface-200/80 bg-white">
-            <div className="h-8 w-8 animate-spin rounded-full border-2 border-brand-600 border-t-transparent" />
+          <div className="flex h-full min-h-0 flex-1 flex-col overflow-hidden bg-white lg:min-h-[620px] lg:rounded-[24px] lg:border lg:border-white/70 lg:shadow-[0_16px_48px_-16px_rgba(0,0,0,0.12)]">
+            <div className="border-b border-surface-200 px-5 py-4">
+              <div className="h-5 w-40 animate-pulse rounded-lg bg-surface-200" />
+              <div className="mt-2 h-3 w-24 animate-pulse rounded bg-surface-100" />
+            </div>
+            <ChatMessageSkeleton />
           </div>
         ) : (
-          <div className="hidden h-full min-h-[520px] flex-col items-center justify-center rounded-[24px] border border-dashed border-surface-300 bg-white px-6 text-center lg:flex">
-            <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-brand-50">
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="hidden h-full min-h-[620px] flex-col items-center justify-center rounded-[24px] border border-dashed border-surface-300/80 bg-white/85 px-6 text-center shadow-sm backdrop-blur-xl md:flex"
+          >
+            <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-brand-50 shadow-sm">
               <MessageSquare className="h-8 w-8 text-brand-600" />
             </div>
             <h3 className="text-lg font-bold text-surface-900">{t.messaging.selectConversation}</h3>
             <p className="mt-2 max-w-sm text-sm text-surface-500">
               {t.messaging.selectConversationHint}
             </p>
-          </div>
+          </motion.div>
         )}
       </div>
+
+      {activeConversation && !loadingMessages && (
+        <MessagingSectionErrorBoundary name="MessagingInfoPanel">
+          <MessagingInfoPanel
+            conversation={activeConversation}
+            messages={messages ?? []}
+            isOnline={isOnline(resolveOtherParticipant(activeConversation, userId).id)}
+            className="hidden xl:flex"
+          />
+        </MessagingSectionErrorBoundary>
+      )}
     </div>
   );
 }

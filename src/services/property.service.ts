@@ -1,6 +1,8 @@
 import type { Property, PropertyFilters } from "@/types/database";
+import type { FeaturedProperty } from "@/types/property-display";
 import { createClient } from "@/lib/supabase/server";
 import { sanitizeIlikePattern } from "@/lib/property-search";
+import { BoostService } from "@/services/boost.service";
 
 export async function getCities(): Promise<string[]> {
   const supabase = await createClient();
@@ -76,8 +78,26 @@ export async function getPropertyById(id: string): Promise<Property | null> {
   return data as Property;
 }
 
-export async function getFeaturedProperties(limit = 3): Promise<Property[]> {
+export async function getFeaturedProperties(limit = 6): Promise<FeaturedProperty[]> {
   const supabase = await createClient();
+
+  const { data: product } = await supabase
+    .from("boost_products")
+    .select("id")
+    .eq("slug", "homepage-spotlight")
+    .eq("is_active", true)
+    .maybeSingle();
+
+  if (product?.id) {
+    const boosted = await BoostService.getFeaturedListings(product.id, limit);
+    if (boosted.length > 0) {
+      return boosted.map((entry) => ({
+        ...entry.property,
+        featured_position: entry.campaign.position,
+      }));
+    }
+  }
+
   const { data, error } = await supabase
     .from("properties")
     .select("*, owner:profiles(*)")

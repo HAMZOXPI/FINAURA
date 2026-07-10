@@ -105,6 +105,7 @@ export function UnreadMessagesProvider({
       .subscribe();
 
     return () => {
+      void channel.unsubscribe();
       void supabase.removeChannel(channel);
     };
   }, [userId, refreshUnreadCount]);

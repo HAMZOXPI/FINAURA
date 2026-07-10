@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { DashboardListings } from "@/components/dashboard/dashboard-listings";
 import { Button } from "@/components/ui/button";
 import { resolveUserId } from "@/lib/supabase/auth";
@@ -52,7 +53,9 @@ export default async function DashboardPropertiesPage() {
       )}
 
       <div className="mt-8">
-        <DashboardListings properties={properties} />
+        <Suspense fallback={<div className="text-sm text-surface-500">{dict.boost.loading}</div>}>
+          <DashboardListings properties={properties} />
+        </Suspense>
       </div>
     </div>
   );

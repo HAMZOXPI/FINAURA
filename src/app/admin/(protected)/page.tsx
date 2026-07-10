@@ -1,38 +1,27 @@
-import { AdminRecentActivity } from "@/components/admin/admin-recent-activity";
-import { AdminStatsGrid } from "@/components/admin/admin-stats-grid";
+import { AdminExecutiveDashboard } from "@/components/admin/dashboard/admin-executive-dashboard";
+import { getAdminBoostHistory, getAdminBoostStats, getAdminFeaturedListings } from "@/services/admin-boost.service";
 import { getAdminDashboardStats, getAdminRecentActivity } from "@/services/admin.service";
-import { getDictionary } from "@/i18n/get-dictionary";
-import { getLocale } from "@/i18n/server";
+import { getBoostSettings } from "@/services/boost-settings.service";
 
 export default async function AdminDashboardPage() {
-  const dict = getDictionary(await getLocale());
-  const [stats, activity] = await Promise.all([
-    getAdminDashboardStats(),
-    getAdminRecentActivity(10),
-  ]);
+  const [stats, boostStats, boostHistory, activity, featuredListings, boostSettings] =
+    await Promise.all([
+      getAdminDashboardStats(),
+      getAdminBoostStats(),
+      getAdminBoostHistory(200),
+      getAdminRecentActivity(20),
+      getAdminFeaturedListings(),
+      getBoostSettings(),
+    ]);
 
   return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight text-surface-900 sm:text-3xl">
-          {dict.admin.dashboardTitle}
-        </h1>
-        <p className="mt-2 text-surface-500">{dict.admin.dashboardSubtitle}</p>
-      </div>
-
-      <AdminStatsGrid
-        stats={stats}
-        labels={{
-          totalUsers: dict.admin.totalUsers,
-          totalProperties: dict.admin.totalProperties,
-          activeListings: dict.admin.activeListings,
-          pendingVerification: dict.admin.pendingVerification,
-          totalMessages: dict.admin.totalMessages,
-          premiumUsers: dict.admin.premiumUsers,
-        }}
-      />
-
-      <AdminRecentActivity items={activity} />
-    </div>
+    <AdminExecutiveDashboard
+      stats={stats}
+      boostStats={boostStats}
+      boostHistory={boostHistory}
+      activity={activity}
+      featuredListings={featuredListings}
+      boostSettings={boostSettings}
+    />
   );
 }

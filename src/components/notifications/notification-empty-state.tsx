@@ -10,7 +10,7 @@ export function NotificationEmptyState({ compact = false }: { compact?: boolean 
     <div
       className={
         compact
-          ? "flex flex-col items-center px-4 py-10 text-center"
+          ? "flex flex-col items-center px-4 py-8 text-center sm:py-10"
           : "flex flex-col items-center rounded-2xl border border-dashed border-surface-200 bg-surface-50/50 px-6 py-16 text-center"
       }
     >

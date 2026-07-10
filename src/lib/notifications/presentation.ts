@@ -63,6 +63,8 @@ const TYPE_ICON: Record<
   subscription_expired: { Icon: Star, emoji: "⭐", iconClass: "text-red-600 bg-red-100" },
   new_message: { Icon: MessageSquare, emoji: "💬", iconClass: "text-sky-600 bg-sky-100" },
   report_listing: { Icon: AlertTriangle, emoji: "⚠️", iconClass: "text-amber-600 bg-amber-100" },
+  boost_outbid: { Icon: AlertTriangle, emoji: "🔔", iconClass: "text-amber-600 bg-amber-100" },
+  boost_expired: { Icon: Star, emoji: "⏱️", iconClass: "text-surface-600 bg-surface-100" },
   admin_broadcast: { Icon: Megaphone, emoji: "📢", iconClass: "text-brand-600 bg-brand-100" },
   system: { Icon: Bell, emoji: "🔔", iconClass: "text-surface-600 bg-surface-100" },
 };

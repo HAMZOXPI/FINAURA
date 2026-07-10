@@ -1,12 +1,5 @@
-import { DashboardStatsSkeleton } from "@/components/ui/skeleton";
+import { DashboardOverviewSkeleton } from "@/components/dashboard/workspace/dashboard-overview-skeleton";
 
 export default function DashboardLoading() {
-  return (
-    <div>
-      <div className="h-8 w-48 animate-pulse rounded-lg bg-surface-200" />
-      <div className="mt-8">
-        <DashboardStatsSkeleton />
-      </div>
-    </div>
-  );
+  return <DashboardOverviewSkeleton />;
 }

@@ -14,6 +14,7 @@ import {
   notifyPropertyHidden,
   notifyPropertyRejected,
 } from "@/lib/notifications/dispatch";
+import { mapPropertyTypeToDb } from "@/lib/properties/property-type-map";
 import type { ListingStatus, PropertyStatus, PropertyType } from "@/types/database";
 
 function parseAdminPropertyForm(formData: FormData) {
@@ -80,13 +81,25 @@ export async function adminUpdateProperty(propertyId: string, formData: FormData
     (feature) => feature !== "admin_rejected" && !feature.startsWith("admin_rejection:")
   );
 
+  const selectedPropertyType = parsed.property_type;
+  const dbPropertyType = mapPropertyTypeToDb(selectedPropertyType);
+  if (!dbPropertyType) return { error: "Invalid property type" };
+
+  const payload = {
+    ...parsed,
+    property_type: dbPropertyType,
+    features: [...withoutAdminMarkers(userFeatures), ...adminMarkers],
+  };
+
+  // Temporary debug logging — remove once the property_type constraint
+  // mismatch is confirmed fixed in production.
+  console.log("Selected property type:", selectedPropertyType);
+  console.log("Payload:", payload);
+
   const supabase = await createClient();
   const { error } = await supabase
     .from("properties")
-    .update({
-      ...parsed,
-      features: [...withoutAdminMarkers(userFeatures), ...adminMarkers],
-    })
+    .update(payload)
     .eq("id", propertyId);
 
   if (error) return { error: error.message };

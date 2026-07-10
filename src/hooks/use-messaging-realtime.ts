@@ -97,7 +97,9 @@ export function useConversationMessages(
 
     return () => {
       typingChannelRef.current = null;
+      void messagesChannel.unsubscribe();
       void supabase.removeChannel(messagesChannel);
+      void typingChannel.unsubscribe();
       void supabase.removeChannel(typingChannel);
       if (typingTimeoutRef.current) window.clearTimeout(typingTimeoutRef.current);
     };
@@ -138,6 +140,7 @@ export function useConversationListRealtime(
       .subscribe();
 
     return () => {
+      void channel.unsubscribe();
       void supabase.removeChannel(channel);
     };
   }, [userId, onUpdate]);
