@@ -109,9 +109,9 @@ export function PropertiesGridSection({
           </MotionSection>
         ) : (
           <MotionStagger className={cn(premiumIdentity ? "mt-10" : "mt-12", PROPERTY_GRID_CLASS)}>
-            {properties.map((property) => (
+            {properties.map((property, index) => (
               <MotionItem key={property.id}>
-                <PropertyCard property={property} />
+                <PropertyCard property={property} priority={index < 4} />
               </MotionItem>
             ))}
           </MotionStagger>

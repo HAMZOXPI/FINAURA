@@ -10,6 +10,7 @@ import { NotificationBell } from "@/components/notifications/notification-bell";
 import { UnreadCountBadge } from "@/components/messaging/unread-count-badge";
 import { useUnreadMessages } from "@/components/messaging/unread-messages-provider";
 import { Button } from "@/components/ui/button";
+import { BottomSheet } from "@/components/ui/bottom-sheet";
 import { useTranslation } from "@/i18n/locale-provider";
 import { cn, getInitials } from "@/lib/utils";
 import { signOut } from "@/actions/auth.actions";
@@ -193,73 +194,79 @@ export function Header({ user }: HeaderProps) {
         </div>
       </div>
 
-      {mobileOpen && (
-        <div className="border-t border-surface-200 bg-white px-4 py-4 md:hidden">
-          <nav className="flex flex-col gap-1">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                onClick={() => setMobileOpen(false)}
-                className={cn(
-                  "rounded-lg px-4 py-3 text-sm font-medium",
-                  linkActiveCheck(link.href) ? "bg-brand-50 text-brand-700" : "text-surface-600"
-                )}
-              >
-                {link.label}
-              </Link>
-            ))}
-            <div className="mt-3 flex flex-col gap-2 border-t border-surface-200 pt-3">
-              {user ? (
-                <>
-                  <Link
-                    href="/dashboard/messages"
-                    onClick={() => setMobileOpen(false)}
-                    className="flex items-center justify-between rounded-lg px-4 py-3 text-sm font-medium text-surface-600"
-                  >
-                    <span className="inline-flex items-center gap-2">
-                      <MessageSquare className="h-4 w-4" />
-                      {t.nav.messages}
-                    </span>
-                    <UnreadCountBadge count={unreadCount} />
-                  </Link>
-                  <div className="flex items-center gap-3 px-4 py-2">
-                    <span className="flex h-8 w-8 items-center justify-center rounded-full bg-brand-100 text-xs font-bold text-brand-700">
-                      {getInitials(user.fullName)}
-                    </span>
-                    <div>
-                      <p className="text-sm font-medium text-surface-900">{user.fullName}</p>
-                      <p className="text-xs text-surface-500">{user.email}</p>
-                    </div>
-                  </div>
-                  <form action={signOut}>
-                    <Button variant="outline" className="w-full" type="submit">
-                      {t.nav.signOut}
-                    </Button>
-                  </form>
-                </>
-              ) : (
-                <>
-                  <Link
-                    href="/login"
-                    onClick={() => setMobileOpen(false)}
-                    className="flex h-11 w-full items-center justify-center rounded-xl border border-surface-300 bg-white text-sm font-medium text-surface-700 transition-colors hover:bg-surface-50"
-                  >
-                    {t.nav.login}
-                  </Link>
-                  <Link
-                    href="/register"
-                    onClick={() => setMobileOpen(false)}
-                    className="flex h-11 w-full items-center justify-center rounded-xl bg-brand-600 text-sm font-medium text-white transition-colors hover:bg-brand-700"
-                  >
-                    {t.nav.getStarted}
-                  </Link>
-                </>
+      <BottomSheet
+        open={mobileOpen}
+        onClose={() => setMobileOpen(false)}
+        title={user ? t.nav.myAccount : undefined}
+        height="large"
+        closeLabel={t.notifications.close}
+        zIndex={160}
+        className="md:hidden"
+      >
+        <nav className="flex flex-col gap-1 pb-2">
+          {navLinks.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              onClick={() => setMobileOpen(false)}
+              className={cn(
+                "rounded-xl px-4 py-3 text-sm font-medium",
+                linkActiveCheck(link.href) ? "bg-brand-50 text-brand-700" : "text-surface-600"
               )}
-            </div>
-          </nav>
-        </div>
-      )}
+            >
+              {link.label}
+            </Link>
+          ))}
+          <div className="mt-3 flex flex-col gap-2 border-t border-surface-200 pt-3">
+            {user ? (
+              <>
+                <Link
+                  href="/dashboard/messages"
+                  onClick={() => setMobileOpen(false)}
+                  className="flex items-center justify-between rounded-xl px-4 py-3 text-sm font-medium text-surface-600"
+                >
+                  <span className="inline-flex items-center gap-2">
+                    <MessageSquare className="h-4 w-4" />
+                    {t.nav.messages}
+                  </span>
+                  <UnreadCountBadge count={unreadCount} />
+                </Link>
+                <div className="flex items-center gap-3 px-4 py-2">
+                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-brand-100 text-xs font-bold text-brand-700">
+                    {getInitials(user.fullName)}
+                  </span>
+                  <div>
+                    <p className="text-sm font-medium text-surface-900">{user.fullName}</p>
+                    <p className="text-xs text-surface-500">{user.email}</p>
+                  </div>
+                </div>
+                <form action={signOut}>
+                  <Button variant="outline" className="w-full" type="submit">
+                    {t.nav.signOut}
+                  </Button>
+                </form>
+              </>
+            ) : (
+              <>
+                <Link
+                  href="/login"
+                  onClick={() => setMobileOpen(false)}
+                  className="flex h-11 w-full items-center justify-center rounded-xl border border-surface-300 bg-white text-sm font-medium text-surface-700 transition-colors hover:bg-surface-50"
+                >
+                  {t.nav.login}
+                </Link>
+                <Link
+                  href="/register"
+                  onClick={() => setMobileOpen(false)}
+                  className="flex h-11 w-full items-center justify-center rounded-xl bg-brand-600 text-sm font-medium text-white transition-colors hover:bg-brand-700"
+                >
+                  {t.nav.getStarted}
+                </Link>
+              </>
+            )}
+          </div>
+        </nav>
+      </BottomSheet>
     </header>
   );
 }

@@ -1,9 +1,18 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 import { motion } from "framer-motion";
-import { ChevronDown, LayoutGrid, LayoutList, List, Map, MapPin } from "lucide-react";
+import {
+  ArrowUpDown,
+  Check,
+  ChevronDown,
+  LayoutGrid,
+  LayoutList,
+  List,
+  Map,
+  MapPin,
+} from "lucide-react";
 import type { Property } from "@/types/database";
 import { PropertyCard } from "@/components/properties/property-card";
 import { PropertiesMapLayout } from "@/components/properties/properties-map-layout";
@@ -13,6 +22,7 @@ import {
 } from "@/components/properties/property-filters-sidebar";
 import { PropertiesEmptyState } from "@/components/properties/properties-empty-state";
 import { Button } from "@/components/ui/button";
+import { BottomSheet, BottomSheetOption } from "@/components/ui/bottom-sheet";
 import {
   buildLayoutParams,
   buildLoadMoreParams,
@@ -24,6 +34,7 @@ import {
 import { interpolate } from "@/lib/utils";
 import { useTranslation } from "@/i18n/locale-provider";
 import { cn } from "@/lib/utils";
+import { useScrollRestoration } from "@/hooks/use-scroll-restoration";
 
 interface PropertiesBrowseViewProps {
   properties: Property[];
@@ -32,6 +43,69 @@ interface PropertiesBrowseViewProps {
   hasMore: boolean;
   currentPage: number;
   cities: string[];
+}
+
+function MobileSortSheet({
+  currentSort,
+  onChange,
+  disabled,
+}: {
+  currentSort: string;
+  onChange: (sort: string) => void;
+  disabled: boolean;
+}) {
+  const [open, setOpen] = useState(false);
+  const { t } = useTranslation();
+
+  const options = [
+    { value: "newest", label: t.filters.sortNewest },
+    { value: "price_asc", label: t.filters.sortPriceAsc },
+    { value: "price_desc", label: t.filters.sortPriceDesc },
+  ];
+
+  const activeLabel = options.find((option) => option.value === currentSort)?.label;
+
+  return (
+    <div className="lg:hidden">
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        disabled={disabled}
+        onClick={() => setOpen(true)}
+      >
+        <ArrowUpDown className="h-4 w-4" />
+        {activeLabel ?? t.properties.sortBy}
+      </Button>
+
+      <BottomSheet
+        open={open}
+        onClose={() => setOpen(false)}
+        title={t.properties.sortBy}
+        height="small"
+        closeLabel={t.notifications.close}
+        zIndex={220}
+      >
+        <div className="space-y-1 pb-2">
+          {options.map((option) => (
+            <BottomSheetOption
+              key={option.value}
+              label={option.label}
+              onClick={() => {
+                onChange(option.value);
+                setOpen(false);
+              }}
+              trailing={
+                option.value === currentSort ? (
+                  <Check className="h-4 w-4 shrink-0 text-brand-600" />
+                ) : undefined
+              }
+            />
+          ))}
+        </div>
+      </BottomSheet>
+    </div>
+  );
 }
 
 export function PropertiesBrowseView({
@@ -46,6 +120,8 @@ export function PropertiesBrowseView({
   const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
   const { t } = useTranslation();
+
+  useScrollRestoration();
 
   const paramsObject = Object.fromEntries(searchParams.entries());
   const formValues = searchParamsToFormValues(paramsObject);
@@ -126,7 +202,7 @@ export function PropertiesBrowseView({
               </div>
 
               <div className="flex flex-wrap items-center gap-3">
-                <div className="relative">
+                <div className="relative hidden lg:block">
                   <select
                     value={currentSort}
                     onChange={(event) => handleSortChange(event.target.value)}
@@ -140,6 +216,8 @@ export function PropertiesBrowseView({
                   </select>
                   <ChevronDown className="pointer-events-none absolute end-3 top-1/2 h-4 w-4 -translate-y-1/2 text-surface-400" />
                 </div>
+
+                <MobileSortSheet currentSort={currentSort} onChange={handleSortChange} disabled={isPending} />
 
               <div className="flex flex-wrap items-center gap-3">
                 <div className="flex rounded-xl border border-surface-200 p-1">
@@ -233,7 +311,7 @@ export function PropertiesBrowseView({
                       : "flex flex-col gap-4"
                   )}
                 >
-                  {properties.map((property) => (
+                  {properties.map((property, index) => (
                     <motion.div
                       key={property.id}
                       variants={{
@@ -242,7 +320,11 @@ export function PropertiesBrowseView({
                       }}
                       transition={{ duration: 0.3 }}
                     >
-                      <PropertyCard property={property} variant={viewMode} />
+                      <PropertyCard
+                        property={property}
+                        variant={viewMode}
+                        priority={index < 4}
+                      />
                     </motion.div>
                   ))}
                 </motion.div>

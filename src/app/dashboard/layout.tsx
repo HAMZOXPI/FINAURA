@@ -1,6 +1,7 @@
 import { DashboardNav } from "@/components/dashboard/dashboard-nav";
 import { DashboardSignOut } from "@/components/dashboard/dashboard-sign-out";
 import { DashboardCelebrationShell } from "@/components/dashboard/dashboard-celebration-shell";
+import { PageTransition } from "@/components/layout/page-transition";
 import { DashboardUserCard } from "@/components/dashboard/dashboard-user-card";
 import { DashboardQuickStats } from "@/components/dashboard/dashboard-quick-stats";
 import { DashboardUpgradeCard } from "@/components/dashboard/dashboard-upgrade-card";
@@ -78,7 +79,9 @@ export default async function DashboardLayout({
         </aside>
 
         <div className="min-w-0 flex-1">
-          <DashboardCelebrationShell>{children}</DashboardCelebrationShell>
+          <PageTransition>
+            <DashboardCelebrationShell>{children}</DashboardCelebrationShell>
+          </PageTransition>
         </div>
       </div>
     </div>

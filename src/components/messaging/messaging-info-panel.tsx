@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import {
   ArrowLeft,
   BadgeCheck,
+  Home,
   ImageIcon,
   MoreHorizontal,
   Sparkles,
@@ -13,6 +14,7 @@ import {
 } from "lucide-react";
 import type { ChatMessage, ConversationWithMeta, PropertyStatus } from "@/types/database";
 import { PropertyPreviewRow } from "@/components/messaging/property-preview-row";
+import { BottomSheet, BottomSheetOption } from "@/components/ui/bottom-sheet";
 import { PLACEHOLDER_IMAGE } from "@/lib/constants";
 import {
   extractSharedMedia,
@@ -308,6 +310,11 @@ export function ChatConversationHeader({
   const { t } = useTranslation();
   const other = resolveOtherParticipant(conversation);
   const avatarSrc = getSafeImageSrc(other?.avatar_url, "");
+  const sellerId = conversation.seller_id ?? "";
+  const isSeller = Boolean(other.id && sellerId && other.id === sellerId);
+  const profileHref = isSeller && other.id ? `/seller/${other.id}` : sellerId ? `/seller/${sellerId}` : undefined;
+  const listingHref = conversation.property_id ? `/properties/${conversation.property_id}` : undefined;
+  const [optionsOpen, setOptionsOpen] = useState(false);
 
   return (
     <div className="sticky top-0 z-20 shrink-0 border-b border-white/60 bg-white/90 backdrop-blur-xl">
@@ -353,6 +360,7 @@ export function ChatConversationHeader({
 
         <button
           type="button"
+          onClick={() => setOptionsOpen(true)}
           className="shrink-0 rounded-xl p-2.5 text-surface-500 transition-colors hover:bg-surface-100"
           aria-label={t.messaging.moreActions}
         >
@@ -361,6 +369,34 @@ export function ChatConversationHeader({
       </div>
 
       <PropertyPreviewRow conversation={conversation} />
+
+      <BottomSheet
+        open={optionsOpen}
+        onClose={() => setOptionsOpen(false)}
+        title={t.messaging.moreActions}
+        height="small"
+        closeLabel={t.notifications.close}
+        zIndex={220}
+      >
+        <div className="space-y-1 pb-2">
+          {profileHref && (
+            <BottomSheetOption
+              icon={<UserRound className="h-[18px] w-[18px]" />}
+              label={t.messaging.viewProfile}
+              href={profileHref}
+              onClick={() => setOptionsOpen(false)}
+            />
+          )}
+          {listingHref && (
+            <BottomSheetOption
+              icon={<Home className="h-[18px] w-[18px]" />}
+              label={t.messaging.openListing}
+              href={listingHref}
+              onClick={() => setOptionsOpen(false)}
+            />
+          )}
+        </div>
+      </BottomSheet>
     </div>
   );
 }

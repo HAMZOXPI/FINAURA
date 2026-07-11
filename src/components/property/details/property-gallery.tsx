@@ -7,18 +7,22 @@ import { ChevronLeft, ChevronRight, Grid2x2, X, ZoomIn } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { PLACEHOLDER_IMAGE } from "@/lib/constants";
 import { isPremiumProperty } from "@/lib/property/details-display";
+import { propertyPhotoLayoutId, SHARED_ELEMENT_DURATION } from "@/lib/properties/shared-transition";
 import { useTranslation } from "@/i18n/locale-provider";
 
 interface PropertyGalleryProps {
   images: string[];
   title: string;
   isPremium?: boolean;
+  /** Property id — enables the card-to-hero shared-element photo transition. */
+  propertyId?: string;
 }
 
-export function PropertyGallery({ images, title, isPremium }: PropertyGalleryProps) {
+export function PropertyGallery({ images, title, isPremium, propertyId }: PropertyGalleryProps) {
   const { t } = useTranslation();
   const displayImages = images.length > 0 ? images : [PLACEHOLDER_IMAGE];
   const premium = isPremium ?? false;
+  const photoLayoutId = propertyId ? propertyPhotoLayoutId(propertyId) : undefined;
 
   const [activeIndex, setActiveIndex] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
@@ -90,8 +94,10 @@ export function PropertyGallery({ images, title, isPremium }: PropertyGalleryPro
           </>
         )}
 
-        <button
+        <motion.button
           type="button"
+          layoutId={photoLayoutId}
+          transition={{ duration: SHARED_ELEMENT_DURATION, ease: [0.22, 1, 0.36, 1] }}
           onClick={() => openLightbox(activeIndex)}
           className="group relative aspect-[4/3] w-full overflow-hidden bg-surface-100 sm:aspect-[21/9]"
           aria-label={t.propertyDetail.viewPhotos}
@@ -158,7 +164,7 @@ export function PropertyGallery({ images, title, isPremium }: PropertyGalleryPro
               </button>
             </>
           )}
-        </button>
+        </motion.button>
 
         {displayImages.length > 1 && (
           <div

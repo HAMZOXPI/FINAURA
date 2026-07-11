@@ -3,6 +3,8 @@ import { headers } from "next/headers";
 import { Inter, Noto_Sans_Arabic } from "next/font/google";
 import { HeaderShell } from "@/components/layout/header-shell";
 import { Footer } from "@/components/layout/footer";
+import { PageTransition } from "@/components/layout/page-transition";
+import { MotionProvider } from "@/components/layout/motion-provider";
 import { UnreadMessagesProvider } from "@/components/messaging/unread-messages-provider";
 import { NotificationsProvider } from "@/components/notifications/notifications-provider";
 import { GiftCelebrationProvider } from "@/components/gifts/gift-celebration-provider";
@@ -47,31 +49,39 @@ export default async function RootLayout({
   const notificationCount = user ? await getUnreadNotificationCount(user.id) : 0;
   const pathname = (await headers()).get("x-pathname") ?? "";
   const isAdminRoute = pathname.startsWith("/admin");
+  // Dashboard has its own persistent sidebar (nested layout), so its page
+  // content is transitioned locally there instead of at the root — wrapping
+  // it here too would remount the sidebar on every dashboard navigation.
+  const hasOwnTransitionScope = isAdminRoute || pathname.startsWith("/dashboard");
 
   return (
-    <html lang={locale} dir={locale === "ar" ? "rtl" : "ltr"}>
+    <html lang={locale} dir={locale === "ar" ? "rtl" : "ltr"} className="bg-surface-50">
       <body
         className={`${inter.variable} ${notoArabic.variable} ${
           locale === "ar" ? notoArabic.className : inter.className
         }`}
       >
-        <LocaleProvider locale={locale} dictionary={dict}>
-          <UnreadMessagesProvider userId={user?.id ?? null} initialCount={unreadCount}>
-            <NotificationsProvider userId={user?.id ?? null} initialCount={notificationCount}>
-            <GiftCelebrationProvider userId={user?.id ?? null}>
-            <OrganizationStructuredData />
-            <WebsiteStructuredData />
-            {!isAdminRoute && <HeaderShell />}
-            {isAdminRoute ? (
-              children
-            ) : (
-              <main className="min-h-[calc(100vh-4rem)] overflow-x-hidden">{children}</main>
-            )}
-            {!isAdminRoute && <Footer />}
-            </GiftCelebrationProvider>
-            </NotificationsProvider>
-          </UnreadMessagesProvider>
-        </LocaleProvider>
+        <MotionProvider>
+          <LocaleProvider locale={locale} dictionary={dict}>
+            <UnreadMessagesProvider userId={user?.id ?? null} initialCount={unreadCount}>
+              <NotificationsProvider userId={user?.id ?? null} initialCount={notificationCount}>
+              <GiftCelebrationProvider userId={user?.id ?? null}>
+              <OrganizationStructuredData />
+              <WebsiteStructuredData />
+              {!isAdminRoute && <HeaderShell />}
+              {isAdminRoute ? (
+                children
+              ) : (
+                <main className="min-h-[calc(100vh-4rem)] overflow-x-hidden">
+                  {hasOwnTransitionScope ? children : <PageTransition>{children}</PageTransition>}
+                </main>
+              )}
+              {!isAdminRoute && <Footer />}
+              </GiftCelebrationProvider>
+              </NotificationsProvider>
+            </UnreadMessagesProvider>
+          </LocaleProvider>
+        </MotionProvider>
       </body>
     </html>
   );

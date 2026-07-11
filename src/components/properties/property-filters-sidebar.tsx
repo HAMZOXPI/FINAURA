@@ -2,11 +2,11 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
-import { AnimatePresence, motion } from "framer-motion";
-import { Search, SlidersHorizontal, X } from "lucide-react";
+import { Search, SlidersHorizontal } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
+import { BottomSheet } from "@/components/ui/bottom-sheet";
 import { MOROCCAN_CITIES, PROPERTY_TYPE_VALUES } from "@/lib/constants";
 import {
   buildPropertySearchParams,
@@ -22,6 +22,12 @@ interface PropertyFiltersSidebarProps {
   cities?: string[];
   className?: string;
   onApplied?: () => void;
+  /** Hides the internal "Filtrer les annonces" header row (used when a parent, e.g. a BottomSheet, already renders its own title). */
+  hideHeader?: boolean;
+  /** Overrides the submit button label without touching the default (desktop) label. */
+  submitLabel?: string;
+  /** Overrides the clear button label without touching the default (desktop) label. */
+  clearLabel?: string;
 }
 
 const EMPTY_FORM: PropertySearchFormValues = {
@@ -174,6 +180,9 @@ export function PropertyFiltersSidebar({
   cities = [],
   className,
   onApplied,
+  hideHeader = false,
+  submitLabel,
+  clearLabel,
 }: PropertyFiltersSidebarProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -237,19 +246,21 @@ export function PropertyFiltersSidebar({
         className
       )}
     >
-      <div className="mb-5 flex items-center gap-2 border-b border-surface-100 pb-4">
-        <SlidersHorizontal className="h-4 w-4 text-brand-600" />
-        <h2 className="text-sm font-bold uppercase tracking-wide text-surface-900">
-          {t.filters.title}
-        </h2>
-      </div>
+      {!hideHeader && (
+        <div className="mb-5 flex items-center gap-2 border-b border-surface-100 pb-4">
+          <SlidersHorizontal className="h-4 w-4 text-brand-600" />
+          <h2 className="text-sm font-bold uppercase tracking-wide text-surface-900">
+            {t.filters.title}
+          </h2>
+        </div>
+      )}
 
       <FilterFields form={form} updateField={updateField} cityOptions={cityOptions} t={t} />
 
       <div className="mt-6 space-y-2">
         <Button type="submit" className="w-full" isLoading={isPending}>
           <Search className="h-4 w-4" />
-          {t.filters.searchButton}
+          {submitLabel ?? t.filters.searchButton}
         </Button>
         <Button
           type="button"
@@ -259,7 +270,7 @@ export function PropertyFiltersSidebar({
           onClick={clearFilters}
           disabled={isPending || !hasFilters}
         >
-          {t.filters.clear}
+          {clearLabel ?? t.filters.clear}
         </Button>
       </div>
     </form>
@@ -290,40 +301,26 @@ export function PropertyFiltersMobileDrawer({ cities = [] }: { cities?: string[]
         )}
       </Button>
 
-      <AnimatePresence>
-        {open && (
-          <>
-            <motion.button
-              type="button"
-              aria-label={t.propertyDetail.closeGallery}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 z-50 bg-black/40 lg:hidden"
-              onClick={() => setOpen(false)}
-            />
-            <motion.div
-              initial={{ x: "100%" }}
-              animate={{ x: 0 }}
-              exit={{ x: "100%" }}
-              transition={{ type: "spring", stiffness: 320, damping: 32 }}
-              className="fixed inset-y-0 end-0 z-50 w-full max-w-sm overflow-y-auto bg-white p-4 shadow-2xl lg:hidden"
-            >
-              <div className="mb-4 flex items-center justify-between">
-                <h2 className="text-lg font-bold text-surface-900">{t.filters.title}</h2>
-                <button
-                  type="button"
-                  onClick={() => setOpen(false)}
-                  className="flex h-10 w-10 items-center justify-center rounded-xl border border-surface-200 text-surface-600"
-                >
-                  <X className="h-5 w-5" />
-                </button>
-              </div>
-              <PropertyFiltersSidebar cities={cities} onApplied={() => setOpen(false)} />
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
+      <BottomSheet
+        open={open}
+        onClose={() => setOpen(false)}
+        title={t.filters.title}
+        height="large"
+        closeLabel={t.notifications.close}
+        zIndex={220}
+        transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+      >
+        <div className="pb-2">
+          <PropertyFiltersSidebar
+            cities={cities}
+            onApplied={() => setOpen(false)}
+            className="border-none p-0 shadow-none"
+            hideHeader
+            submitLabel={t.filters.applyMobile}
+            clearLabel={t.filters.resetMobile}
+          />
+        </div>
+      </BottomSheet>
     </>
   );
 }

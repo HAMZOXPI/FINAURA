@@ -10,6 +10,7 @@ import {
   isPremiumProperty,
 } from "@/lib/property/details-display";
 import { cn, formatDate, interpolate } from "@/lib/utils";
+import { propertyTitleLayoutId, SHARED_ELEMENT_DURATION } from "@/lib/properties/shared-transition";
 import { useTranslation } from "@/i18n/locale-provider";
 
 interface PropertyHeroProps {
@@ -84,9 +85,13 @@ export function PropertyHero({ property, statusLabel, featuredPosition }: Proper
         </span>
       </div>
 
-      <h1 className="mt-5 text-3xl font-bold tracking-tight text-surface-900 sm:text-4xl lg:text-[2.75rem] lg:leading-[1.15]">
+      <motion.h1
+        layoutId={propertyTitleLayoutId(property.id)}
+        transition={{ duration: SHARED_ELEMENT_DURATION, ease: [0.22, 1, 0.36, 1] }}
+        className="mt-5 text-3xl font-bold tracking-tight text-surface-900 sm:text-4xl lg:text-[2.75rem] lg:leading-[1.15]"
+      >
         {property.title}
-      </h1>
+      </motion.h1>
 
       <p className="mt-4 flex items-start gap-2.5 text-base text-surface-600 sm:text-lg">
         <MapPin className="mt-0.5 h-5 w-5 shrink-0 text-brand-600" aria-hidden />

@@ -9,6 +9,7 @@ import {
   ListingPromoteCard,
   useDashboardBoostData,
 } from "@/components/dashboard/listing-promote-card";
+import { ListingActionsSheet } from "@/components/dashboard/listing-actions-sheet";
 import { formatPrice, getListingStatusLabel } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -27,11 +28,15 @@ export function DashboardListings({ properties }: DashboardListingsProps) {
   const boostPosition = searchParams.get("boostPosition");
   const parsedBoostPosition = boostPosition ? Number(boostPosition) : undefined;
 
-  const handleDelete = (id: string) => {
-    if (!confirm(t.dashboard.deleteConfirm)) return;
+  const performDelete = (id: string) => {
     startTransition(async () => {
       await deleteProperty(id);
     });
+  };
+
+  const handleDelete = (id: string) => {
+    if (!confirm(t.dashboard.deleteConfirm)) return;
+    performDelete(id);
   };
 
   const handleToggleStatus = (id: string, current: string) => {
@@ -75,7 +80,7 @@ export function DashboardListings({ properties }: DashboardListingsProps) {
               </p>
             </div>
 
-            <div className="flex flex-wrap items-center gap-2 sm:shrink-0">
+            <div className="hidden flex-wrap items-center gap-2 sm:shrink-0 lg:flex">
               <Button href={`/properties/${property.id}`} variant="outline" size="sm">
                 {t.dashboard.view}
               </Button>
@@ -110,6 +115,15 @@ export function DashboardListings({ properties }: DashboardListingsProps) {
               >
                 <Trash2 className="h-4 w-4" />
               </Button>
+            </div>
+
+            <div className="sm:shrink-0">
+              <ListingActionsSheet
+                property={property}
+                isPending={isPending}
+                onToggleStatus={handleToggleStatus}
+                onDelete={performDelete}
+              />
             </div>
           </div>
 

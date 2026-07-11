@@ -110,6 +110,7 @@ export function PropertyDetailsLayout({
             images={property.images}
             title={property.title}
             isPremium={premium}
+            propertyId={property.id}
           />
         </div>
 
@@ -125,6 +126,7 @@ export function PropertyDetailsLayout({
               propertyId={property.id}
               propertyTitle={property.title}
               favorited={favorited}
+              sellerId={property.owner_id}
             />
 
             <PropertyHighlights property={property} typeLabel={typeLabel} />

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Bed, Bath, Maximize, MapPin, Calendar } from "lucide-react";
 import type { Property, PropertyStatus } from "@/types/database";
@@ -19,12 +20,20 @@ import {
 import { PLACEHOLDER_IMAGE } from "@/lib/constants";
 import { FavoriteButton } from "@/components/properties/favorite-button";
 import { PropertyCardShareButton } from "@/components/properties/property-card-share-button";
+import { PropertyActionsSheet } from "@/components/properties/property-actions-sheet";
+import {
+  propertyPhotoLayoutId,
+  propertyTitleLayoutId,
+  SHARED_ELEMENT_DURATION,
+} from "@/lib/properties/shared-transition";
 import { useTranslation } from "@/i18n/locale-provider";
 
 interface PropertyCardProps {
   property: Property;
   variant?: "grid" | "list";
   premiumMeta?: PremiumDisplayMeta;
+  /** Marks the image as above-the-fold to avoid lazy-load frame drops on first paint. */
+  priority?: boolean;
 }
 
 function formatCardPrice(price: number, status: PropertyStatus, locale: Locale): string {
@@ -80,8 +89,14 @@ function getFeaturedStyles(isFeatured: boolean) {
   };
 }
 
-export function PropertyCard({ property, variant = "grid", premiumMeta }: PropertyCardProps) {
+export function PropertyCard({
+  property,
+  variant = "grid",
+  premiumMeta,
+  priority = false,
+}: PropertyCardProps) {
   const { t, locale } = useTranslation();
+  const router = useRouter();
   const statusLabel = getPropertyStatusLabel(property.status, t);
   const showDetails = property.property_type !== "terrain";
   const agentName = property.owner?.full_name ?? t.properties.defaultAgent;
@@ -91,15 +106,23 @@ export function PropertyCard({ property, variant = "grid", premiumMeta }: Proper
   const isFeatured = Boolean(property.is_featured);
   const premium = resolvePremiumMeta(property, premiumMeta);
   const styles = getFeaturedStyles(isFeatured);
+  const photoLayoutId = propertyPhotoLayoutId(property.id);
+  const titleLayoutId = propertyTitleLayoutId(property.id);
+
+  // Warms the destination route ahead of the tap/click so the shared-element
+  // transition has real content (not just the loading skeleton) to morph into.
+  const prefetchDetail = () => router.prefetch(detailHref);
 
   const cardMotion = isFeatured
     ? {
         initial: { opacity: 0, y: 12 },
         animate: { opacity: 1, y: 0 },
+        whileTap: { scale: 0.98 },
         transition: { duration: 0.5, ease: "easeOut" as const },
       }
     : {
         whileHover: { y: isList ? -2 : -4 },
+        whileTap: { scale: 0.98 },
         transition: { duration: 0.25, ease: "easeOut" as const },
       };
 
@@ -114,13 +137,19 @@ export function PropertyCard({ property, variant = "grid", premiumMeta }: Proper
     return (
       <motion.article
         {...cardMotion}
+        onPointerEnter={prefetchDetail}
+        onTouchStart={prefetchDetail}
         className={cn(
           "group relative flex flex-col overflow-hidden rounded-[20px] border bg-white transition-all duration-[250ms] sm:flex-row",
           styles.card
         )}
       >
         {isFeatured && <div className={styles.glow} aria-hidden />}
-        <div className="relative aspect-video w-full shrink-0 sm:aspect-auto sm:h-56 sm:w-72 md:w-80">
+        <motion.div
+          layoutId={photoLayoutId}
+          transition={{ duration: SHARED_ELEMENT_DURATION, ease: [0.22, 1, 0.36, 1] }}
+          className="relative aspect-video w-full shrink-0 sm:aspect-auto sm:h-56 sm:w-72 md:w-80"
+        >
           {isFeatured && <div className={styles.accent} aria-hidden />}
           {isFeatured && (
             <div className="pointer-events-none absolute inset-y-0 start-0 z-[1] w-1 bg-gradient-to-b from-amber-300 via-amber-400 to-amber-500" />
@@ -130,7 +159,8 @@ export function PropertyCard({ property, variant = "grid", premiumMeta }: Proper
               src={property.images[0] || PLACEHOLDER_IMAGE}
               alt={property.title}
               fill
-              loading="lazy"
+              priority={priority}
+              loading={priority ? undefined : "lazy"}
               className={cn(
                 "object-cover transition-all duration-[250ms] ease-out",
                 styles.image,
@@ -153,7 +183,7 @@ export function PropertyCard({ property, variant = "grid", premiumMeta }: Proper
           <div className="absolute end-3 top-3 z-10">
             <FavoriteButton propertyId={property.id} variant="overlay" />
           </div>
-        </div>
+        </motion.div>
 
         <div className="flex min-w-0 flex-1 flex-col p-5">
           <div className="flex flex-wrap items-start justify-between gap-3">
@@ -167,9 +197,13 @@ export function PropertyCard({ property, variant = "grid", premiumMeta }: Proper
                 </span>
               </p>
               <Link href={detailHref} className="mt-1 block">
-                <h3 className="line-clamp-2 text-lg font-semibold text-surface-900 group-hover:text-brand-700">
+                <motion.h3
+                  layoutId={titleLayoutId}
+                  transition={{ duration: SHARED_ELEMENT_DURATION, ease: [0.22, 1, 0.36, 1] }}
+                  className="line-clamp-2 text-lg font-semibold text-surface-900 group-hover:text-brand-700"
+                >
                   {property.title}
-                </h3>
+                </motion.h3>
               </Link>
               <p className="mt-2 flex items-center gap-1.5 text-sm text-surface-500">
                 <MapPin className="h-4 w-4 shrink-0" />
@@ -203,8 +237,17 @@ export function PropertyCard({ property, variant = "grid", premiumMeta }: Proper
             >
               {t.properties.view}
             </Link>
-            <FavoriteButton propertyId={property.id} variant="compact" />
-            <PropertyCardShareButton propertyId={property.id} title={property.title} />
+            <div className="hidden items-center gap-2 lg:flex">
+              <FavoriteButton propertyId={property.id} variant="compact" />
+              <PropertyCardShareButton propertyId={property.id} title={property.title} />
+            </div>
+            <div className="lg:hidden">
+              <PropertyActionsSheet
+                propertyId={property.id}
+                propertyTitle={property.title}
+                sellerId={property.owner_id}
+              />
+            </div>
           </div>
         </div>
       </motion.article>
@@ -214,20 +257,27 @@ export function PropertyCard({ property, variant = "grid", premiumMeta }: Proper
   return (
     <motion.article
       {...cardMotion}
+      onPointerEnter={prefetchDetail}
+      onTouchStart={prefetchDetail}
       className={cn(
         "group relative flex h-full flex-col overflow-hidden rounded-[20px] border bg-white transition-all duration-[250ms]",
         styles.card
       )}
     >
       {isFeatured && <div className={styles.glow} aria-hidden />}
-      <div className="relative aspect-video overflow-hidden">
+      <motion.div
+        layoutId={photoLayoutId}
+        transition={{ duration: SHARED_ELEMENT_DURATION, ease: [0.22, 1, 0.36, 1] }}
+        className="relative aspect-video overflow-hidden"
+      >
         {isFeatured && <div className={styles.accent} aria-hidden />}
         <Link href={detailHref} className="block h-full w-full" tabIndex={-1} aria-hidden>
           <Image
             src={property.images[0] || PLACEHOLDER_IMAGE}
             alt={property.title}
             fill
-            loading="lazy"
+            priority={priority}
+            loading={priority ? undefined : "lazy"}
             className={cn(
               "object-cover transition-all duration-[250ms] ease-out",
               styles.image,
@@ -254,7 +304,7 @@ export function PropertyCard({ property, variant = "grid", premiumMeta }: Proper
         <div className="absolute end-3 top-3 z-10">
           <FavoriteButton propertyId={property.id} variant="overlay" />
         </div>
-      </div>
+      </motion.div>
 
       <div className="flex flex-1 flex-col p-4 sm:p-5">
         <p
@@ -265,9 +315,13 @@ export function PropertyCard({ property, variant = "grid", premiumMeta }: Proper
         </p>
 
         <Link href={detailHref} className="mt-2 block">
-          <h3 className="line-clamp-2 text-base font-semibold leading-snug text-surface-900 transition-colors duration-[250ms] group-hover:text-brand-700 sm:text-lg">
+          <motion.h3
+            layoutId={titleLayoutId}
+            transition={{ duration: SHARED_ELEMENT_DURATION, ease: [0.22, 1, 0.36, 1] }}
+            className="line-clamp-2 text-base font-semibold leading-snug text-surface-900 transition-colors duration-[250ms] group-hover:text-brand-700 sm:text-lg"
+          >
             {property.title}
-          </h3>
+          </motion.h3>
         </Link>
 
         <p className="mt-2 flex items-center gap-1.5 text-sm text-surface-500">
@@ -327,8 +381,17 @@ export function PropertyCard({ property, variant = "grid", premiumMeta }: Proper
           >
             {t.properties.view}
           </Link>
-          <FavoriteButton propertyId={property.id} variant="compact" />
-          <PropertyCardShareButton propertyId={property.id} title={property.title} />
+          <div className="hidden items-center gap-2 lg:flex">
+            <FavoriteButton propertyId={property.id} variant="compact" />
+            <PropertyCardShareButton propertyId={property.id} title={property.title} />
+          </div>
+          <div className="lg:hidden">
+            <PropertyActionsSheet
+              propertyId={property.id}
+              propertyTitle={property.title}
+              sellerId={property.owner_id}
+            />
+          </div>
         </div>
       </div>
     </motion.article>

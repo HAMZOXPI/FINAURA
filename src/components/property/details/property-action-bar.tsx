@@ -3,6 +3,7 @@
 import { Flag, Heart, Printer } from "lucide-react";
 import { FavoriteButton } from "@/components/properties/favorite-button";
 import { PropertyCardShareButton } from "@/components/properties/property-card-share-button";
+import { PropertyActionsSheet } from "@/components/properties/property-actions-sheet";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "@/i18n/locale-provider";
 
@@ -10,6 +11,7 @@ interface PropertyActionBarProps {
   propertyId: string;
   propertyTitle: string;
   favorited: boolean;
+  sellerId?: string;
   className?: string;
 }
 
@@ -53,6 +55,7 @@ export function PropertyActionBar({
   propertyId,
   propertyTitle,
   favorited,
+  sellerId,
   className,
 }: PropertyActionBarProps) {
   const { t } = useTranslation();
@@ -63,38 +66,57 @@ export function PropertyActionBar({
       role="toolbar"
       aria-label={t.propertyDetail.actionBarLabel}
     >
-      <FavoriteButton
-        propertyId={propertyId}
-        initialFavorited={favorited}
-        variant="compact"
-        className={cn(
-          "h-11 min-w-11 rounded-full border border-white/60 bg-white/70 px-4",
-          "shadow-[0_4px_20px_-6px_rgba(0,0,0,0.12)] backdrop-blur-md",
-          "transition-all duration-[250ms] [@media(hover:hover)_and_(pointer:fine)]:hover:-translate-y-0.5"
-        )}
-      />
+      {/* Mobile / tablet: a single premium Bottom Sheet consolidates favorite, share,
+          copy link, view profile and report. Desktop keeps the toolbar below unchanged. */}
+      <div className="lg:hidden">
+        <PropertyActionsSheet
+          propertyId={propertyId}
+          propertyTitle={propertyTitle}
+          favorited={favorited}
+          sellerId={sellerId}
+          triggerLabel={t.propertyDetail.moreActions}
+          triggerClassName={cn(
+            "h-11 w-11 rounded-full border border-white/60 bg-white/70",
+            "shadow-[0_4px_20px_-6px_rgba(0,0,0,0.12)] backdrop-blur-md",
+            "transition-all duration-[250ms] [@media(hover:hover)_and_(pointer:fine)]:hover:-translate-y-0.5"
+          )}
+        />
+      </div>
 
-      <PropertyCardShareButton
-        propertyId={propertyId}
-        title={propertyTitle}
-        className={cn(
-          "h-11 min-w-11 rounded-full border border-white/60 bg-white/70 px-4",
-          "shadow-[0_4px_20px_-6px_rgba(0,0,0,0.12)] backdrop-blur-md",
-          "[@media(hover:hover)_and_(pointer:fine)]:hover:-translate-y-0.5"
-        )}
-      />
+      <div className="hidden items-center gap-2.5 lg:flex">
+        <FavoriteButton
+          propertyId={propertyId}
+          initialFavorited={favorited}
+          variant="compact"
+          className={cn(
+            "h-11 min-w-11 rounded-full border border-white/60 bg-white/70 px-4",
+            "shadow-[0_4px_20px_-6px_rgba(0,0,0,0.12)] backdrop-blur-md",
+            "transition-all duration-[250ms] [@media(hover:hover)_and_(pointer:fine)]:hover:-translate-y-0.5"
+          )}
+        />
 
-      <GlassActionButton
-        icon={Printer}
-        label={t.propertyDetail.printComingSoon}
-        disabled
-      />
+        <PropertyCardShareButton
+          propertyId={propertyId}
+          title={propertyTitle}
+          className={cn(
+            "h-11 min-w-11 rounded-full border border-white/60 bg-white/70 px-4",
+            "shadow-[0_4px_20px_-6px_rgba(0,0,0,0.12)] backdrop-blur-md",
+            "[@media(hover:hover)_and_(pointer:fine)]:hover:-translate-y-0.5"
+          )}
+        />
 
-      <GlassActionButton
-        icon={Flag}
-        label={t.propertyDetail.reportComingSoon}
-        disabled
-      />
+        <GlassActionButton
+          icon={Printer}
+          label={t.propertyDetail.printComingSoon}
+          disabled
+        />
+
+        <GlassActionButton
+          icon={Flag}
+          label={t.propertyDetail.reportComingSoon}
+          disabled
+        />
+      </div>
     </div>
   );
 }

@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState, useTransition } from "react";
-import { createPortal } from "react-dom";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
@@ -21,6 +20,8 @@ import { NotificationListSkeleton } from "@/components/notifications/notificatio
 import { useNotifications } from "@/components/notifications/notifications-provider";
 import type { Notification } from "@/types/database";
 import { Button } from "@/components/ui/button";
+import { BottomSheet } from "@/components/ui/bottom-sheet";
+import { useMediaQuery } from "@/hooks/use-media-query";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "@/i18n/locale-provider";
 
@@ -143,17 +144,13 @@ export function NotificationBell({ variant = "light" }: NotificationBellProps) {
   } = useNotifications();
 
   const [open, setOpen] = useState(false);
-  const [mounted, setMounted] = useState(false);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(false);
   const [isPending, startTransition] = useTransition();
   const containerRef = useRef<HTMLDivElement>(null);
+  const isMobileSheet = useMediaQuery("(max-width: 639px)");
 
   const solid = variant === "light";
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   const loadNotifications = useCallback(async () => {
     setLoading(true);
@@ -192,19 +189,6 @@ export function NotificationBell({ variant = "light" }: NotificationBellProps) {
 
     if (open) document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [open]);
-
-  useEffect(() => {
-    if (!open) return;
-
-    const isMobile = window.matchMedia("(max-width: 639px)").matches;
-    if (!isMobile) return;
-
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = previousOverflow;
-    };
   }, [open]);
 
   const handleOpenNotification = (notification: Notification) => {
@@ -265,40 +249,21 @@ export function NotificationBell({ variant = "light" }: NotificationBellProps) {
     onDelete: handleDelete,
   };
 
-  const mobileSheet =
-    mounted &&
-    open &&
-    createPortal(
-      <AnimatePresence>
-        {open && (
-          <>
-            <motion.button
-              type="button"
-              aria-label={t.notifications.close}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className="fixed inset-0 z-[120] bg-black/45 sm:hidden"
-              onClick={() => setOpen(false)}
-            />
-            <motion.div
-              initial={{ y: "100%" }}
-              animate={{ y: 0 }}
-              exit={{ y: "100%" }}
-              transition={{ type: "spring", stiffness: 380, damping: 34 }}
-              className="fixed inset-0 z-[130] flex max-h-[100dvh] w-full flex-col overflow-hidden bg-white sm:hidden"
-              role="dialog"
-              aria-modal="true"
-              aria-label={t.notifications.title}
-            >
-              <NotificationPanel {...panelProps} />
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>,
-      document.body
-    );
+  const mobileSheet = (
+    <BottomSheet
+      open={open && isMobileSheet}
+      onClose={() => setOpen(false)}
+      ariaLabel={t.notifications.title}
+      height="large"
+      showHandle
+      showCloseButton={false}
+      closeLabel={t.notifications.close}
+      contentClassName="flex flex-col px-0 pb-0"
+      zIndex={130}
+    >
+      <NotificationPanel {...panelProps} />
+    </BottomSheet>
+  );
 
   return (
     <div ref={containerRef} className="relative">

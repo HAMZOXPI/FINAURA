@@ -4,7 +4,7 @@ import { useState } from "react";
 import { MessageCircle } from "lucide-react";
 import type { Property } from "@/types/database";
 import { FavoriteButton } from "@/components/properties/favorite-button";
-import { PropertyCardShareButton } from "@/components/properties/property-card-share-button";
+import { PropertyShareSheet } from "@/components/property/details/property-share-sheet";
 import { formatDetailPrice } from "@/lib/property/details-display";
 import { useTranslation } from "@/i18n/locale-provider";
 
@@ -47,7 +47,7 @@ export function PropertyMobileBottomBar({
           variant="compact"
         />
 
-        <PropertyCardShareButton propertyId={property.id} title={propertyTitle} />
+        <PropertyShareSheet property={property} propertyTitle={propertyTitle} />
 
         <button
           type="button"
