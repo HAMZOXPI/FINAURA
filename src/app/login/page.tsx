@@ -1,5 +1,4 @@
-import { AuthForm } from "@/components/auth/auth-form";
-import { Logo } from "@/components/layout/logo";
+import { LoginPageContent } from "@/components/auth/login-page-content";
 import { getDictionary } from "@/i18n/get-dictionary";
 import { getLocale } from "@/i18n/server";
 import { createMetadata } from "@/lib/seo";
@@ -25,25 +24,32 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
   const locale = await getLocale();
   const dict = getDictionary(locale);
 
+  const trustItems: [string, string, string] = [
+    dict.admin.notifications.drawer.freeBadge,
+    dict.home.zeroCommissionNoCommissionLine.replace(/\.$/, ""),
+    dict.boost.checkoutSecureBadge,
+  ];
+
+  const forgotPasswordLabel =
+    locale === "ar" ? "هل نسيت كلمة المرور؟" : "Mot de passe oublié ?";
+
   return (
-    <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center px-4 py-12">
-      <div className="w-full max-w-md">
-        <div className="mb-8 text-center">
-          <Logo className="justify-center" />
-          <h1 className="mt-6 text-2xl font-bold text-surface-900">{dict.auth.welcomeBack}</h1>
-          <p className="mt-2 text-sm text-surface-500">{dict.auth.loginSubtitle}</p>
-        </div>
+    <div className="relative flex min-h-[calc(100vh-4rem)] items-center justify-center overflow-x-hidden px-4 py-10 sm:py-12">
+      <div
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-10%,rgba(0,105,198,0.09),transparent_65%)]"
+        aria-hidden
+      />
 
-        {params.message === "check-email" && (
-          <div className="mb-4 rounded-xl border border-brand-200 bg-brand-50 px-4 py-3 text-sm text-brand-800">
-            {dict.auth.checkEmail}
-          </div>
-        )}
-
-        <div className="rounded-2xl border border-surface-200 bg-white p-6 shadow-sm sm:p-8">
-          <AuthForm mode="login" redirectTo={params.redirect} />
-        </div>
-      </div>
+      <LoginPageContent
+        locale={locale}
+        welcomeBadge={dict.dashboard.workspace.welcomeBadge}
+        title={dict.auth.welcomeBack}
+        subtitle={dict.auth.loginSubtitle}
+        checkEmailMessage={params.message === "check-email" ? dict.auth.checkEmail : undefined}
+        redirectTo={params.redirect}
+        trustItems={trustItems}
+        forgotPasswordLabel={forgotPasswordLabel}
+      />
     </div>
   );
 }

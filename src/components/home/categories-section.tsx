@@ -1,6 +1,8 @@
 "use client";
 
+import { useCallback, useEffect, useRef, type ReactNode } from "react";
 import Link from "next/link";
+import { motion } from "framer-motion";
 import {
   ArrowUpRight,
   Briefcase,
@@ -14,9 +16,10 @@ import {
 } from "lucide-react";
 import type { PropertyType } from "@/types/database";
 import { useTranslation } from "@/i18n/locale-provider";
+import { useMediaQuery } from "@/hooks/use-media-query";
 import { PROPERTY_TYPE_VALUES } from "@/lib/constants";
 import { cn, getPropertyTypeLabel } from "@/lib/utils";
-import { MotionSection, MotionStagger, MotionItem } from "@/components/home/motion-section";
+import { MotionSection, MotionItem } from "@/components/home/motion-section";
 
 const CATEGORY_ICONS: Record<PropertyType, typeof Building2> = {
   appartement: Building2,
@@ -72,6 +75,145 @@ const CATEGORY_STYLES = [
   },
 ] as const;
 
+const SCROLL_HINT_STORAGE_KEY = "finaura:categories-scroll-hint-done";
+const SCROLL_HINT_OFFSET_PX = 26;
+const SCROLL_HINT_HOLD_MS = 600;
+
+/**
+ * Mobile-only horizontal scroller with a one-time peek animation that hints
+ * more cards exist off-screen. Disabled after manual interaction or completion.
+ */
+function CategoryCardsScroller({
+  children,
+  className,
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const hintActiveRef = useRef(false);
+  const cancelledRef = useRef(false);
+  const timeoutsRef = useRef<number[]>([]);
+  const isMobile = useMediaQuery("(max-width: 767px)");
+
+  const clearHintTimeouts = useCallback(() => {
+    timeoutsRef.current.forEach((id) => window.clearTimeout(id));
+    timeoutsRef.current = [];
+  }, []);
+
+  const markHintDone = useCallback(() => {
+    cancelledRef.current = true;
+    hintActiveRef.current = false;
+    clearHintTimeouts();
+    try {
+      sessionStorage.setItem(SCROLL_HINT_STORAGE_KEY, "1");
+    } catch {
+      /* storage unavailable */
+    }
+  }, [clearHintTimeouts]);
+
+  const runScrollHint = useCallback(
+    (el: HTMLDivElement) => {
+      if (cancelledRef.current) return;
+
+      if (el.scrollWidth <= el.clientWidth + 1) {
+        markHintDone();
+        return;
+      }
+
+      const isRtl = document.documentElement.dir === "rtl";
+      const peekOffset = isRtl ? -SCROLL_HINT_OFFSET_PX : SCROLL_HINT_OFFSET_PX;
+
+      hintActiveRef.current = true;
+      el.scrollTo({ left: peekOffset, behavior: "smooth" });
+
+      const returnTimeout = window.setTimeout(() => {
+        if (cancelledRef.current) return;
+        el.scrollTo({ left: 0, behavior: "smooth" });
+
+        const doneTimeout = window.setTimeout(() => {
+          hintActiveRef.current = false;
+          markHintDone();
+        }, 450);
+
+        timeoutsRef.current.push(doneTimeout);
+      }, SCROLL_HINT_HOLD_MS);
+
+      timeoutsRef.current.push(returnTimeout);
+    },
+    [markHintDone]
+  );
+
+  useEffect(() => {
+    if (!isMobile) return;
+
+    let alreadyDone = false;
+    try {
+      alreadyDone = sessionStorage.getItem(SCROLL_HINT_STORAGE_KEY) === "1";
+    } catch {
+      /* storage unavailable */
+    }
+
+    if (alreadyDone) {
+      cancelledRef.current = true;
+      return;
+    }
+
+    const el = scrollRef.current;
+    if (!el) return;
+
+    const onUserIntent = () => {
+      markHintDone();
+    };
+
+    el.addEventListener("touchstart", onUserIntent, { passive: true });
+    el.addEventListener("pointerdown", onUserIntent);
+    el.addEventListener("wheel", onUserIntent, { passive: true });
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry?.isIntersecting || cancelledRef.current) return;
+        observer.disconnect();
+
+        const startTimeout = window.setTimeout(() => {
+          if (!cancelledRef.current && scrollRef.current) {
+            runScrollHint(scrollRef.current);
+          }
+        }, 450);
+
+        timeoutsRef.current.push(startTimeout);
+      },
+      { threshold: 0.35 }
+    );
+
+    observer.observe(el);
+
+    return () => {
+      observer.disconnect();
+      clearHintTimeouts();
+      el.removeEventListener("touchstart", onUserIntent);
+      el.removeEventListener("pointerdown", onUserIntent);
+      el.removeEventListener("wheel", onUserIntent);
+    };
+  }, [isMobile, clearHintTimeouts, markHintDone, runScrollHint]);
+
+  return (
+    <motion.div
+      ref={scrollRef}
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, margin: "-60px" }}
+      variants={{
+        hidden: {},
+        visible: { transition: { staggerChildren: 0.08 } },
+      }}
+      className={className}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
 export function CategoriesSection() {
   const { t } = useTranslation();
 
@@ -89,7 +231,7 @@ export function CategoriesSection() {
           <p className="mt-4 text-lg text-surface-500">{t.home.categoriesSubtitle}</p>
         </MotionSection>
 
-        <MotionStagger
+        <CategoryCardsScroller
           className={cn(
             "mt-16 gap-4",
             "flex snap-x snap-mandatory overflow-x-auto pb-3",
@@ -167,7 +309,7 @@ export function CategoriesSection() {
               </MotionItem>
             );
           })}
-        </MotionStagger>
+        </CategoryCardsScroller>
       </div>
     </section>
   );

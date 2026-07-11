@@ -60,15 +60,15 @@ export function PropertiesGridSection({
                   <Crown className="h-3 w-3 fill-amber-900/25 text-amber-950" strokeWidth={2.25} />
                   {t.home.featuredBadge}
                 </span>
-                <h2 className="mt-4 flex items-center gap-3 text-3xl font-bold tracking-tight text-surface-900 sm:gap-3.5 sm:text-4xl">
-                  <PremiumSectionCrownIcon />
-                  {title}
-                </h2>
-                <div
-                  className="mt-4 h-0.5 w-14 rounded-full bg-gradient-to-r from-amber-400 via-yellow-500 to-amber-400/60"
-                  aria-hidden
-                />
-                <p className="mt-4 text-lg text-surface-600">{subtitle}</p>
+                <div className="mt-4 flex items-center gap-5 sm:gap-6">
+                  <PremiumSectionCrownIcon className="shrink-0" />
+                  <div className="min-w-0">
+                    <h2 className="text-3xl font-bold tracking-tight text-surface-900 sm:text-4xl">
+                      {title}
+                    </h2>
+                    <p className="mt-4 text-lg text-surface-600">{subtitle}</p>
+                  </div>
+                </div>
               </>
             ) : (
               <>

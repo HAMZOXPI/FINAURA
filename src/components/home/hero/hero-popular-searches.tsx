@@ -22,7 +22,7 @@ export function HeroPopularSearches({ onCitySelect, onTypeSelect }: HeroPopularS
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.35, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-      className="mt-5"
+      className="mt-5 max-md:mt-7"
     >
       <p className="text-center text-xs font-bold uppercase tracking-[0.14em] text-white/70">
         {t.home.popularSearchesTitle}

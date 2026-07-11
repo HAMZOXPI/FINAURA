@@ -66,13 +66,19 @@ export function PremiumBoostCtaCard() {
           </p>
 
           <div className="mt-7 flex flex-col items-start gap-3 sm:flex-row sm:items-center">
-            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+            <motion.div whileTap={{ scale: 0.98 }}>
               <Link
                 href={BOOST_CENTER_HREF}
-                className="group/btn inline-flex h-14 items-center justify-center gap-2 rounded-full bg-gradient-to-r from-brand-600 to-brand-700 px-8 text-sm font-semibold text-white shadow-[0_14px_32px_-10px_rgba(0,105,198,0.55)] transition-all duration-300 hover:shadow-[0_18px_40px_-8px_rgba(217,119,6,0.4)]"
+                className="group/btn relative inline-flex h-14 items-center justify-center gap-2 overflow-hidden rounded-full bg-gradient-to-r from-[#F7D774] via-[#E8BC3D] to-[#C89211] px-8 text-sm font-semibold text-white shadow-[0_14px_32px_-10px_rgba(200,146,17,0.48),0_4px_14px_-4px_rgba(247,215,116,0.32)] transition-[transform,box-shadow,filter] duration-[280ms] ease-out hover:-translate-y-0.5 hover:brightness-110 hover:shadow-[0_18px_40px_-8px_rgba(200,146,17,0.58),0_8px_22px_-4px_rgba(247,215,116,0.42)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/60 focus-visible:ring-offset-2"
               >
-                {t.home.boostCtaButton}
-                <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover/btn:translate-x-0.5" />
+                <span
+                  aria-hidden
+                  className="pointer-events-none absolute inset-y-0 start-0 w-[38%] bg-gradient-to-r from-transparent via-white/55 to-transparent [@media(hover:hover)]:group-hover/btn:animate-[ribbon-shine_1s_ease-in-out]"
+                />
+                <span className="relative z-[1] drop-shadow-[0_1px_1px_rgba(90,60,8,0.3)]">
+                  {t.home.boostCtaButton}
+                </span>
+                <ArrowRight className="relative z-[1] h-4 w-4 transition-transform duration-300 group-hover/btn:translate-x-0.5" />
               </Link>
             </motion.div>
 

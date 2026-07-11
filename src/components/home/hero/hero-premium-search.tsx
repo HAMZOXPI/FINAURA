@@ -304,7 +304,7 @@ export function HeroPremiumSearch() {
         initial={{ opacity: 0, y: 28 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.25, duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
-        className="relative z-20 mb-[-2.5rem] w-full shrink-0 pb-6 lg:mb-[-2.5rem] lg:pb-8"
+        className="relative z-20 w-full shrink-0 max-md:mb-0 max-md:pb-8 md:mb-[-2.5rem] md:pb-6 lg:pb-8"
       >
         <div className="md:hidden">
           {!mobileExpanded ? (

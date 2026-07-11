@@ -51,17 +51,17 @@ export function HeroQuickFilters({
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.42, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-      className="mt-4"
+      className="mt-4 max-md:mt-7"
     >
       <p className="text-center text-xs font-bold uppercase tracking-[0.14em] text-white/60">
         {t.home.quickFiltersTitle}
       </p>
       <div
-        className="mt-3 flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+        className="mt-3 flex flex-wrap justify-center gap-2 max-md:px-0 md:gap-2 md:overflow-x-auto md:flex-nowrap md:pb-1 md:[scrollbar-width:none] md:[-ms-overflow-style:none] md:[&::-webkit-scrollbar]:hidden"
         role="toolbar"
         aria-label={t.home.quickFiltersTitle}
       >
-        <div className="mx-auto flex min-w-0 gap-2 px-1">
+        <div className="flex w-full flex-wrap justify-center gap-2 max-md:px-0 md:mx-auto md:min-w-0 md:flex-nowrap md:px-1">
           {QUICK_FILTER_CONFIGS.map((filter, index) => {
             const Icon = QUICK_FILTER_ICONS[filter.id];
             const labelKey = QUICK_FILTER_LABELS[filter.id];

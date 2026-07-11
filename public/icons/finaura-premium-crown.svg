@@ -1,0 +1,28 @@
+<svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <defs>
+    <linearGradient id="fpc-gold" x1="24" y1="13" x2="24" y2="38" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#F7D774"/>
+      <stop offset="46%" stop-color="#E8BC3D"/>
+      <stop offset="100%" stop-color="#C89211"/>
+    </linearGradient>
+    <linearGradient id="fpc-hi" x1="17" y1="14" x2="31" y2="30" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#FFFDF6" stop-opacity="0.75"/>
+      <stop offset="42%" stop-color="#F7D774" stop-opacity="0.22"/>
+      <stop offset="100%" stop-color="#C89211" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="fpc-spec" x1="22" y1="15" x2="26" y2="22" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.55"/>
+      <stop offset="100%" stop-color="#F7D774" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="fpc-shadow" x="-8%" y="-6%" width="116%" height="122%">
+      <feDropShadow dx="0" dy="0.55" stdDeviation="0.22" flood-color="#6E5208" flood-opacity="0.26"/>
+    </filter>
+  </defs>
+  <path d="M13.5 32.25L16.25 23.25L19.25 28.5L24 15.25L28.75 28.5L31.75 23.25L34.5 32.25H35.5Q37.5 32.25 37.5 34.25V36.75H10.5V34.25Q10.5 32.25 12.5 32.25H13.5Z" fill="#9A7010" fill-opacity="0.14" transform="translate(0 0.65)"/>
+  <path d="M13.5 32.25L16.25 23.25L19.25 28.5L24 15.25L28.75 28.5L31.75 23.25L34.5 32.25H35.5Q37.5 32.25 37.5 34.25V36.75H10.5V34.25Q10.5 32.25 12.5 32.25H13.5Z" fill="url(#fpc-gold)" filter="url(#fpc-shadow)"/>
+  <path d="M19.25 28.5L24 15.25L28.75 28.5" fill="#C89211" fill-opacity="0.1"/>
+  <path d="M13.5 32.25L16.25 23.25L19.25 28.5L24 15.25L28.75 28.5L31.75 23.25L34.5 32.25H35.5Q37.5 32.25 37.5 34.25V36.75H10.5V34.25Q10.5 32.25 12.5 32.25H13.5Z" fill="url(#fpc-hi)"/>
+  <path d="M16.25 23.25L19.25 28.5L24 15.25L28.75 28.5L31.75 23.25" stroke="#F7D774" stroke-width="0.55" stroke-linecap="round" stroke-linejoin="round" fill="none" opacity="0.42"/>
+  <path d="M10.75 34.75H37.25" stroke="#E8BC3D" stroke-width="0.5" stroke-linecap="round" opacity="0.35"/>
+  <path d="M23.1 17.5L24 15.25L24.9 17.5" stroke="url(#fpc-spec)" stroke-width="0.85" stroke-linecap="round" fill="none"/>
+</svg>

@@ -34,43 +34,46 @@ function FloatingChip({
       animate={{ y: [0, -10, 0] }}
       transition={{ duration: 4.5, repeat: Infinity, ease: "easeInOut", delay }}
       className={cn(
-        "absolute flex h-14 w-14 items-center justify-center rounded-2xl border border-white/60 bg-white/80 shadow-[0_12px_30px_-10px_rgba(15,23,42,0.25)] backdrop-blur-md",
+        "absolute flex h-7 w-7 items-center justify-center rounded-lg border border-white/60 bg-white/80 shadow-[0_12px_30px_-10px_rgba(15,23,42,0.25)] backdrop-blur-md md:h-10 md:w-10 md:rounded-xl lg:h-14 lg:w-14 lg:rounded-2xl",
         className
       )}
     >
-      <Icon className="h-6 w-6 text-brand-600" strokeWidth={1.75} />
+      <Icon
+        className="h-3.5 w-3.5 text-brand-600 md:h-5 md:w-5 lg:h-6 lg:w-6"
+        strokeWidth={1.75}
+      />
     </motion.div>
   );
 }
 
 function ZeroCommissionIllustration() {
   return (
-    <div className="relative mx-auto flex h-[320px] w-full max-w-md items-center justify-center sm:h-[380px]">
-      <div className="absolute h-72 w-72 rounded-full bg-brand-200/40 blur-3xl" />
-      <div className="absolute -bottom-10 -end-6 h-56 w-56 rounded-full bg-emerald-200/30 blur-3xl" />
+    <div className="relative mx-auto flex h-[150px] w-full max-w-[190px] items-center justify-center md:h-[200px] md:max-w-[240px] lg:h-[380px] lg:max-w-md">
+      <div className="absolute h-[104px] w-[104px] rounded-full bg-brand-200/32 blur-3xl md:h-44 md:w-44 md:bg-brand-200/40 lg:h-72 lg:w-72" />
+      <div className="absolute -bottom-4 -end-3 h-[90px] w-[90px] rounded-full bg-emerald-200/24 blur-3xl md:-bottom-6 md:-end-4 md:h-36 md:w-36 md:bg-emerald-200/30 lg:-bottom-10 lg:-end-6 lg:h-56 lg:w-56" />
 
       <motion.div
         animate={{ y: [0, -8, 0] }}
         transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-        className="relative flex h-52 w-52 items-center justify-center rounded-[36px] border border-white/70 bg-white/70 shadow-[0_24px_60px_-16px_rgba(0,105,198,0.35)] backdrop-blur-xl sm:h-60 sm:w-60"
+        className="relative flex h-[135px] w-[135px] items-center justify-center rounded-[24px] border border-white/70 bg-white/70 shadow-[0_24px_60px_-16px_rgba(0,105,198,0.35)] backdrop-blur-xl md:h-[180px] md:w-[180px] md:rounded-[28px] lg:h-60 lg:w-60 lg:rounded-[36px]"
       >
-        <div className="flex h-32 w-32 items-center justify-center rounded-full bg-gradient-to-br from-brand-500 to-brand-700 shadow-inner sm:h-36 sm:w-36">
-          <Home className="h-14 w-14 text-white" strokeWidth={1.5} />
+        <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-brand-500 to-brand-700 shadow-inner md:h-24 md:w-24 lg:h-36 lg:w-36">
+          <Home className="h-8 w-8 text-white md:h-10 md:w-10 lg:h-14 lg:w-14" strokeWidth={1.5} />
         </div>
 
         <motion.div
           animate={{ y: [0, -6, 0] }}
           transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut", delay: 0.3 }}
-          className="absolute -bottom-3 -end-3 flex h-14 w-14 items-center justify-center rounded-2xl border border-white/80 bg-white shadow-[0_10px_24px_-8px_rgba(0,105,198,0.4)]"
+          className="absolute -bottom-1.5 -end-1.5 flex h-9 w-9 items-center justify-center rounded-lg border border-white/80 bg-white shadow-[0_10px_24px_-8px_rgba(0,105,198,0.4)] md:-bottom-2 md:-end-2 md:h-11 md:w-11 md:rounded-xl lg:-bottom-3 lg:-end-3 lg:h-14 lg:w-14 lg:rounded-2xl"
         >
-          <Coins className="h-6 w-6 text-brand-600" strokeWidth={1.75} />
+          <Coins className="h-4 w-4 text-brand-600 md:h-5 md:w-5 lg:h-6 lg:w-6" strokeWidth={1.75} />
         </motion.div>
       </motion.div>
 
-      <FloatingChip icon={KeyRound} className="top-2 start-2" delay={0.2} />
-      <FloatingChip icon={ShieldCheck} className="bottom-6 start-0 sm:start-4" delay={0.9} />
-      <FloatingChip icon={Handshake} className="top-8 end-0 sm:end-2" delay={1.5} />
-      <FloatingChip icon={MessageSquare} className="bottom-0 end-8 sm:end-10" delay={0.5} />
+      <FloatingChip icon={KeyRound} className="top-2 start-3 md:top-0 md:start-5 lg:top-2 lg:start-2" delay={0.2} />
+      <FloatingChip icon={Handshake} className="top-2 end-3 md:top-5 md:end-1 lg:top-8 lg:end-2" delay={1.5} />
+      <FloatingChip icon={ShieldCheck} className="bottom-2 start-3 md:bottom-5 md:start-1 lg:bottom-6 lg:start-4" delay={0.9} />
+      <FloatingChip icon={MessageSquare} className="bottom-2 end-3 md:bottom-1 md:end-5 lg:bottom-0 lg:end-10" delay={0.5} />
     </div>
   );
 }
@@ -119,60 +122,70 @@ export function ZeroCommissionSection() {
   ];
 
   return (
-    <section className="relative overflow-hidden bg-white py-20 lg:py-28">
+    <section className="relative scroll-mt-20 bg-white py-10 max-md:overflow-visible md:overflow-hidden md:py-12 lg:py-28">
       <div className="container-app">
-        <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2 lg:gap-16">
-          <MotionSection>
-            <span className="inline-flex items-center gap-2 rounded-full border border-brand-200/60 bg-brand-50/50 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.16em] text-brand-700">
+        <div className="grid grid-cols-1 items-center gap-5 lg:grid-cols-2 lg:gap-16">
+          <MotionSection className="flex flex-col items-center text-center md:items-start md:text-start">
+            <span className="hidden w-fit items-center gap-2 rounded-full border border-brand-200/60 bg-brand-50/50 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.16em] text-brand-700 md:inline-flex">
               <BadgeCheck className="h-3.5 w-3.5" aria-hidden />
               {t.home.zeroCommissionBadge}
             </span>
 
-            <h2 className="mt-5 text-3xl font-bold leading-tight tracking-tight text-surface-900 sm:text-4xl lg:text-[2.75rem]">
+            <h2 className="mt-0 text-[2rem] font-bold leading-[1.15] tracking-tight text-surface-900 md:mt-4 md:text-3xl md:leading-tight lg:mt-5 lg:text-[2.75rem]">
               {t.home.zeroCommissionTitle}
             </h2>
 
-            <div className="relative mt-7 inline-flex">
+            <div className="relative mt-2.5 inline-flex md:mt-4 lg:mt-7">
               <motion.div
                 aria-hidden
                 animate={{ scale: [1, 1.05, 1], opacity: [0.28, 0.48, 0.28] }}
                 transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
                 className="absolute -inset-3 rounded-[28px] bg-gradient-to-r from-brand-400 to-brand-600 blur-xl"
               />
-              <div className="relative flex items-center gap-3 rounded-[22px] bg-gradient-to-r from-brand-600 to-brand-500 px-6 py-3.5 shadow-[0_20px_45px_-14px_rgba(0,105,198,0.55)]">
-                <span className="text-3xl font-black tracking-tight text-white sm:text-4xl">
+              <div className="relative flex items-center gap-2.5 rounded-[20px] bg-gradient-to-r from-brand-600 to-brand-500 px-5 py-3 shadow-[0_20px_45px_-14px_rgba(0,105,198,0.55)] lg:gap-3 lg:rounded-[22px] lg:px-6 lg:py-3.5">
+                <span className="text-2xl font-black tracking-tight text-white lg:text-4xl">
                   0%
                 </span>
-                <span className="text-xs font-bold uppercase tracking-wide text-brand-50 sm:text-sm">
+                <span className="text-[11px] font-bold uppercase tracking-wide text-brand-50 lg:text-sm">
                   {t.home.zeroCommissionBadgeValue}
                 </span>
               </div>
             </div>
 
-            <p className="mt-6 max-w-lg text-base leading-relaxed text-surface-500">
+            <p className="mt-2.5 max-w-lg text-base leading-relaxed text-surface-500 md:mt-6">
               {t.home.zeroCommissionSubtitle}
             </p>
 
-            <ul className="mt-6 space-y-2.5">
+            <ul className="mx-auto mt-2.5 w-full max-w-[340px] space-y-2.5 md:mt-6 md:max-w-none">
               {shortBenefits.map((benefit) => (
-                <li key={benefit} className="flex items-center gap-2.5 text-sm font-medium text-surface-700">
-                  <CheckCircle2 className="h-4.5 w-4.5 shrink-0 text-brand-600" strokeWidth={2} />
-                  {benefit}
+                <li
+                  key={benefit}
+                  className="grid grid-cols-[18px_minmax(0,1fr)] items-start gap-x-2.5 text-start text-base font-medium text-surface-700 md:flex md:items-center md:gap-2.5 md:text-sm"
+                >
+                  <CheckCircle2
+                    className="h-[18px] w-[18px] shrink-0 text-brand-600"
+                    strokeWidth={2}
+                  />
+                  <span className="leading-snug">{benefit}</span>
                 </li>
               ))}
             </ul>
 
-            <motion.div whileHover={{ y: -2 }} whileTap={{ scale: 0.98 }} className="mt-8 inline-block">
+            <motion.div
+              whileHover={{ y: -2 }}
+              whileTap={{ scale: 0.98 }}
+              className="mt-3 w-full max-w-[340px] md:mt-8 md:inline-block md:w-auto md:max-w-none"
+            >
               <Link
                 href="/dashboard/new"
-                className="inline-flex h-14 items-center justify-center gap-2 rounded-full bg-brand-600 px-8 text-sm font-semibold text-white shadow-[0_16px_36px_-12px_rgba(0,105,198,0.55)] transition-colors hover:bg-brand-700"
+                className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-full bg-brand-600 px-6 text-base font-semibold text-white shadow-[0_16px_36px_-12px_rgba(0,105,198,0.55)] transition-colors hover:bg-brand-700 md:text-sm lg:h-14 lg:w-auto lg:px-8"
               >
                 {t.home.zeroCommissionCta}
                 <ArrowRight className="h-4 w-4" />
               </Link>
             </motion.div>
 
-            <div className="mt-5 flex flex-col gap-2.5 sm:flex-row sm:items-center sm:gap-5">
+            <div className="mt-5 hidden flex-col gap-2 md:flex md:flex-row md:items-center md:gap-5">
               {[
                 t.home.zeroCommissionCompareFinaura3,
                 `0% ${t.home.zeroCommissionBadgeValue}`,
@@ -187,14 +200,18 @@ export function ZeroCommissionSection() {
                 </span>
               ))}
             </div>
+
+            <div className="mt-7 w-full pb-9 md:hidden">
+              <ZeroCommissionIllustration />
+            </div>
           </MotionSection>
 
-          <MotionSection delay={0.1}>
+          <MotionSection delay={0.1} className="hidden md:block">
             <ZeroCommissionIllustration />
           </MotionSection>
         </div>
 
-        <MotionStagger className="mt-20 grid gap-6 sm:grid-cols-3 lg:mt-24 lg:gap-8">
+        <MotionStagger className="mt-0 grid gap-6 sm:grid-cols-3 md:mt-20 lg:mt-24 lg:gap-8">
           {benefitCards.map((card) => (
             <MotionItem key={card.title}>
               <motion.div

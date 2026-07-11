@@ -27,7 +27,7 @@ export function HomePage({ featured, latest }: HomePageProps) {
     <>
       <HeroSection />
 
-      <div className="pt-16 lg:pt-20">
+      <div className="max-md:pt-0 pt-16 lg:pt-20">
         <CategoriesSection />
 
         <PropertiesGridSection

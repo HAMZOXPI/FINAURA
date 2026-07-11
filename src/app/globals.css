@@ -142,6 +142,20 @@
   }
 }
 
+@keyframes premium-crown-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-2.5px);
+  }
+}
+
+.premium-crown-float {
+  animation: premium-crown-float 4.5s ease-in-out infinite;
+}
+
 .finaura-cluster-marker-wrapper {
   background: transparent !important;
   border: 0 !important;

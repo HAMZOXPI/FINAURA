@@ -1,6 +1,6 @@
 "use client";
 
-import { Crown } from "lucide-react";
+import Image from "next/image";
 import { cn } from "@/lib/utils";
 
 interface PremiumSectionCrownIconProps {
@@ -11,61 +11,91 @@ export function PremiumSectionCrownIcon({ className }: PremiumSectionCrownIconPr
   return (
     <span
       className={cn(
-        "group/crown relative inline-flex h-14 w-14 shrink-0 sm:h-16 sm:w-16",
+        "premium-crown-float group/crown relative inline-flex flex-col items-center",
         className
       )}
       aria-hidden
     >
-      {/* Soft golden glow */}
-      <span
-        className={cn(
-          "pointer-events-none absolute inset-0 rounded-full",
-          "bg-[radial-gradient(circle,rgba(245,158,11,0.45)_0%,rgba(255,214,107,0.15)_45%,transparent_70%)]",
-          "blur-md transition-all duration-[250ms] ease-out",
-          "group-hover/crown:scale-[1.18] group-hover/crown:opacity-100"
-        )}
-      />
+      <span className="relative inline-flex h-[3.85rem] w-[3.85rem] shrink-0 items-center justify-center sm:h-[4.4rem] sm:w-[4.4rem]">
+        {/* Soft radial golden light behind the badge */}
+        <span
+          className="pointer-events-none absolute -inset-4 rounded-full bg-[radial-gradient(circle,rgba(251,191,36,0.2)_0%,rgba(245,158,11,0.07)_45%,transparent_72%)] blur-xl"
+          aria-hidden
+        />
 
-      {/* Outer soft ring + luxury elevation */}
-      <span
-        className={cn(
-          "relative flex h-full w-full items-center justify-center rounded-full",
-          "ring-2 ring-amber-200/45 ring-offset-2 ring-offset-white/80",
-          "shadow-[0_4px_18px_rgba(201,122,0,0.28),0_10px_36px_rgba(245,158,11,0.22),0_0_48px_rgba(255,214,107,0.18)]",
-          "transition-all duration-[250ms] ease-out",
-          "group-hover/crown:scale-105",
-          "group-hover/crown:ring-amber-300/60",
-          "group-hover/crown:shadow-[0_6px_24px_rgba(201,122,0,0.38),0_14px_44px_rgba(245,158,11,0.32),0_0_64px_rgba(255,214,107,0.32)]"
-        )}
-      >
-        {/* Premium gradient badge with inner ring + radial highlight */}
+        {/* Subtle blue shadow underneath */}
+        <span
+          className="pointer-events-none absolute -bottom-1.5 left-1/2 h-3.5 w-[72%] -translate-x-1/2 rounded-full bg-brand-600/10 blur-md"
+          aria-hidden
+        />
+
+        {/* Soft gold outer glow */}
         <span
           className={cn(
-            "relative flex h-[calc(100%-4px)] w-[calc(100%-4px)] items-center justify-center overflow-hidden rounded-full",
-            "bg-gradient-to-br from-[#FFD66B] via-[#F59E0B] to-[#C97A00]",
-            "ring-1 ring-inset ring-white/35",
-            "shadow-[inset_0_1px_1px_rgba(255,255,255,0.45),inset_0_-2px_6px_rgba(201,122,0,0.25)]"
+            "pointer-events-none absolute -inset-1.5 rounded-full",
+            "bg-[radial-gradient(circle,rgba(245,158,11,0.32)_0%,rgba(255,214,107,0.1)_48%,transparent_76%)]",
+            "blur-[3px] transition-all duration-300 ease-out",
+            "group-hover/crown:blur-md group-hover/crown:opacity-100"
+          )}
+          aria-hidden
+        />
+
+        {/* Layered premium badge — white center with gold ring */}
+        <span
+          className={cn(
+            "relative flex h-full w-full items-center justify-center overflow-hidden rounded-full bg-white",
+            "shadow-[0_2px_6px_rgba(15,23,42,0.06),0_6px_20px_rgba(0,105,198,0.1),0_4px_14px_rgba(245,158,11,0.16)]",
+            "ring-1 ring-amber-300/50",
+            "transition-all duration-300 ease-out",
+            "group-hover/crown:ring-amber-400/60",
+            "group-hover/crown:shadow-[0_3px_10px_rgba(15,23,42,0.08),0_10px_28px_rgba(0,105,198,0.14),0_6px_18px_rgba(245,158,11,0.24)]"
           )}
         >
+          {/* Thin gold inner ring */}
           <span
-            className={cn(
-              "pointer-events-none absolute inset-0",
-              "bg-[radial-gradient(circle_at_32%_28%,rgba(255,255,255,0.52)_0%,rgba(255,255,255,0.08)_38%,transparent_62%)]"
-            )}
+            className="pointer-events-none absolute inset-[5px] rounded-full ring-[1.5px] ring-inset ring-amber-400/40"
+            aria-hidden
           />
 
-          <Crown
+          {/* Premium glass highlight — upper-left */}
+          <span
             className={cn(
-              "relative z-[1] h-[42px] w-[42px] sm:h-12 sm:w-12",
-              "fill-amber-950/25 text-amber-950",
-              "drop-shadow-[0_1px_2px_rgba(120,53,15,0.35)]",
-              "transition-transform duration-[250ms] ease-out",
+              "pointer-events-none absolute inset-0 rounded-full",
+              "bg-[radial-gradient(ellipse_at_26%_20%,rgba(255,255,255,0.92)_0%,rgba(255,255,255,0.28)_24%,transparent_52%)]"
+            )}
+            aria-hidden
+          />
+
+          {/* Subtle depth on upper edge */}
+          <span
+            className="pointer-events-none absolute inset-x-3 top-[4px] h-[36%] rounded-full bg-gradient-to-b from-white/70 to-transparent"
+            aria-hidden
+          />
+
+          <Image
+            src="/crown.png"
+            alt=""
+            width={64}
+            height={64}
+            className={cn(
+              "relative z-[1] h-14 w-14 object-contain sm:h-16 sm:w-16",
+              "transition-transform duration-300 ease-out",
               "group-hover/crown:rotate-[2.5deg]"
             )}
-            strokeWidth={2.5}
+            aria-hidden
           />
         </span>
       </span>
+
+      {/* Gold accent line — centered under the badge */}
+      <span
+        className={cn(
+          "mt-3.5 h-px w-[4.75rem] rounded-full sm:w-20",
+          "bg-gradient-to-r from-transparent via-amber-400/85 to-transparent",
+          "shadow-[0_0_8px_rgba(251,191,36,0.28)]"
+        )}
+        aria-hidden
+      />
     </span>
   );
 }

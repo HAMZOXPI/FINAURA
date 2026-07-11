@@ -1,5 +1,4 @@
-import { AuthForm } from "@/components/auth/auth-form";
-import { Logo } from "@/components/layout/logo";
+import { RegisterPageContent } from "@/components/auth/register-page-content";
 import { getDictionary } from "@/i18n/get-dictionary";
 import { getLocale } from "@/i18n/server";
 import { createMetadata } from "@/lib/seo";
@@ -20,19 +19,26 @@ export default async function RegisterPage() {
   const locale = await getLocale();
   const dict = getDictionary(locale);
 
-  return (
-    <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center px-4 py-12">
-      <div className="w-full max-w-md">
-        <div className="mb-8 text-center">
-          <Logo className="justify-center" />
-          <h1 className="mt-6 text-2xl font-bold text-surface-900">{dict.auth.createAccount}</h1>
-          <p className="mt-2 text-sm text-surface-500">{dict.auth.registerSubtitle}</p>
-        </div>
+  const trustItems: [string, string, string] = [
+    dict.pricing.bottomCta.startFree,
+    `0% ${dict.home.zeroCommissionBadgeValue}`,
+    dict.boost.checkoutSecureBadge,
+  ];
 
-        <div className="rounded-2xl border border-surface-200 bg-white p-6 shadow-sm sm:p-8">
-          <AuthForm mode="register" />
-        </div>
-      </div>
+  return (
+    <div className="relative flex min-h-[calc(100vh-4rem)] items-center justify-center overflow-x-hidden px-4 py-10 sm:py-12">
+      <div
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-10%,rgba(0,105,198,0.09),transparent_65%)]"
+        aria-hidden
+      />
+
+      <RegisterPageContent
+        locale={locale}
+        welcomeBadge={dict.dashboard.workspace.welcomeBadge}
+        title={dict.auth.createAccount}
+        subtitle={dict.auth.registerSubtitle}
+        trustItems={trustItems}
+      />
     </div>
   );
 }

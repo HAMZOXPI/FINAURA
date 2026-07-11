@@ -26,7 +26,7 @@ export function HeroSection() {
 
   return (
 
-    <section className="relative min-h-[88vh] lg:min-h-[92vh]">
+    <section className="relative min-h-[88vh] max-md:min-h-0 lg:min-h-[92vh]">
 
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
 
@@ -60,7 +60,7 @@ export function HeroSection() {
 
 
 
-      <div className="container-app relative z-10 flex min-h-[88vh] flex-col pt-28 lg:min-h-[92vh] lg:pt-32">
+      <div className="container-app relative z-10 flex min-h-[88vh] flex-col pt-28 max-md:min-h-0 max-md:px-5 max-md:pb-4 lg:min-h-[92vh] lg:pt-32">
 
         <motion.div
 
@@ -70,7 +70,7 @@ export function HeroSection() {
 
           transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
 
-          className="mx-auto flex max-w-4xl flex-1 flex-col justify-center pb-8 text-center lg:pb-12"
+          className="mx-auto flex max-w-4xl flex-1 flex-col justify-center pb-8 text-center max-md:flex-none max-md:pb-6 lg:pb-12"
 
         >
 
