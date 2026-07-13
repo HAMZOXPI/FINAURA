@@ -5,6 +5,7 @@ import { HeaderShell } from "@/components/layout/header-shell";
 import { Footer } from "@/components/layout/footer";
 import { PageTransition } from "@/components/layout/page-transition";
 import { MotionProvider } from "@/components/layout/motion-provider";
+import { MobileChatFullscreenProvider } from "@/components/messaging/mobile-chat-fullscreen-context";
 import { UnreadMessagesProvider } from "@/components/messaging/unread-messages-provider";
 import { NotificationsProvider } from "@/components/notifications/notifications-provider";
 import { GiftCelebrationProvider } from "@/components/gifts/gift-celebration-provider";
@@ -63,6 +64,7 @@ export default async function RootLayout({
       >
         <MotionProvider>
           <LocaleProvider locale={locale} dictionary={dict}>
+            <MobileChatFullscreenProvider>
             <UnreadMessagesProvider userId={user?.id ?? null} initialCount={unreadCount}>
               <NotificationsProvider userId={user?.id ?? null} initialCount={notificationCount}>
               <GiftCelebrationProvider userId={user?.id ?? null}>
@@ -80,6 +82,7 @@ export default async function RootLayout({
               </GiftCelebrationProvider>
               </NotificationsProvider>
             </UnreadMessagesProvider>
+            </MobileChatFullscreenProvider>
           </LocaleProvider>
         </MotionProvider>
       </body>

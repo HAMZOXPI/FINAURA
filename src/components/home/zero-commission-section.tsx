@@ -78,6 +78,143 @@ function ZeroCommissionIllustration() {
   );
 }
 
+function ZeroCommissionHighlightCard() {
+  const { t } = useTranslation();
+
+  const EASE = [0.22, 1, 0.36, 1] as const;
+
+  const cardVariants = {
+    hidden: { opacity: 0, y: 28 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.62, ease: EASE, when: "beforeChildren" as const },
+    },
+  };
+
+  const contentVariants = {
+    hidden: {},
+    visible: {
+      transition: { staggerChildren: 0.1, delayChildren: 0.14 },
+    },
+  };
+
+  const iconVariants = {
+    hidden: { opacity: 0, scale: 0.82, y: 14 },
+    visible: {
+      opacity: 1,
+      scale: 1,
+      y: 0,
+      transition: { type: "spring" as const, stiffness: 280, damping: 22 },
+    },
+  };
+
+  const fadeVariants = {
+    hidden: { opacity: 0, y: 10 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.52, ease: EASE },
+    },
+  };
+
+  const FLOATING_DECOR = [
+    "start-[7%] top-[16%] h-2.5 w-2.5 rounded-full bg-brand-400/80 animate-[value-particle-float_26s_ease-in-out_infinite]",
+    "end-[9%] top-[20%] h-1.5 w-1.5 rounded-full bg-amber-300/70 animate-[value-sparkle-pulse_24s_ease-in-out_infinite]",
+    "bottom-[18%] start-[11%] h-3 w-3 rounded-full bg-sky-300/60 animate-[value-particle-float_28s_ease-in-out_infinite_reverse]",
+    "end-[13%] bottom-[22%] h-px w-14 rotate-[35deg] bg-gradient-to-r from-transparent via-brand-300/50 to-transparent animate-[value-particle-float_30s_ease-in-out_infinite]",
+    "start-[44%] top-[11%] h-1.5 w-1.5 rounded-full bg-white/80 animate-[value-sparkle-pulse_22s_ease-in-out_infinite_1.5s]",
+  ] as const;
+
+  return (
+    <motion.div
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, margin: "-60px" }}
+      variants={cardVariants}
+      className="relative mt-14 lg:mt-16"
+    >
+      <div className="relative overflow-hidden rounded-[2rem] border border-white/70 px-6 py-11 text-center shadow-[0_1px_0_0_rgba(255,255,255,0.9)_inset,0_24px_64px_-28px_rgba(0,105,198,0.22),0_8px_32px_-16px_rgba(15,23,42,0.08)] sm:rounded-[2.25rem] sm:px-14 sm:py-12">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 bg-gradient-to-br from-white via-[#F8FBFF] to-[#F2F7FD]"
+        />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_0%,rgba(96,165,250,0.16),transparent_68%)]"
+        />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_45%_40%_at_92%_88%,rgba(251,191,36,0.1),transparent_70%)]"
+        />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 transform-gpu animate-[value-glow-drift_11s_ease-in-out_infinite] bg-[radial-gradient(ellipse_40%_35%_at_12%_82%,rgba(59,130,246,0.14),transparent_72%)]"
+        />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-x-0 top-0 h-[42%] bg-gradient-to-b from-white/70 via-white/20 to-transparent"
+        />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-x-8 top-3 h-px bg-gradient-to-r from-transparent via-white/90 to-transparent sm:inset-x-12"
+        />
+
+        {FLOATING_DECOR.map((className, index) => (
+          <span
+            key={index}
+            aria-hidden
+            className={`pointer-events-none absolute transform-gpu opacity-[0.08] ${className}`}
+          />
+        ))}
+
+        <span
+          aria-hidden
+          className="pointer-events-none absolute start-1/2 top-[38%] -translate-x-1/2 -translate-y-1/2 select-none text-[4.5rem] font-black leading-none text-brand-600/[0.035] sm:text-[5.5rem]"
+        >
+          100%
+        </span>
+
+        <motion.div variants={contentVariants} className="relative mx-auto max-w-xl">
+          <motion.div variants={iconVariants} className="relative mx-auto w-fit">
+            <div
+              aria-hidden
+              className="pointer-events-none absolute -inset-3 rounded-full bg-brand-400/20 animate-[value-glow-drift_8s_ease-in-out_infinite]"
+            />
+            <div className="relative flex h-[4.75rem] w-[4.75rem] animate-[value-icon-float_6.5s_ease-in-out_infinite] items-center justify-center rounded-full border border-white/90 bg-white/85 shadow-[0_1px_0_0_rgba(255,255,255,0.95)_inset,0_12px_32px_-8px_rgba(0,105,198,0.28),0_4px_16px_-6px_rgba(15,23,42,0.12)] sm:h-20 sm:w-20">
+              <div
+                aria-hidden
+                className="pointer-events-none absolute inset-0 rounded-full bg-[radial-gradient(circle_at_50%_18%,rgba(147,197,253,0.35),transparent_62%)]"
+              />
+              <Wallet
+                className="relative h-8 w-8 text-brand-700 sm:h-9 sm:w-9"
+                strokeWidth={1.65}
+                aria-hidden
+              />
+            </div>
+          </motion.div>
+
+          <motion.p
+            variants={fadeVariants}
+            className="mt-5 text-[1.35rem] font-bold leading-[1.25] tracking-tight text-surface-900 drop-shadow-[0_1px_0_rgba(255,255,255,0.9)] sm:mt-6 sm:text-2xl sm:leading-[1.2]"
+          >
+            <span className="bg-gradient-to-br from-surface-900 via-surface-800 to-brand-800 bg-clip-text text-transparent">
+              {t.home.zeroCommissionHighlightTitle}
+            </span>
+          </motion.p>
+
+          <motion.p
+            variants={fadeVariants}
+            className="mx-auto mt-3.5 max-w-md text-sm leading-[1.7] text-surface-500 sm:mt-4 sm:text-base sm:leading-[1.75]"
+          >
+            {t.home.zeroCommissionHighlightDesc}
+          </motion.p>
+        </motion.div>
+      </div>
+    </motion.div>
+  );
+}
+
 export function ZeroCommissionSection() {
   const { t } = useTranslation();
 
@@ -276,24 +413,7 @@ export function ZeroCommissionSection() {
           </div>
         </MotionSection>
 
-        <MotionSection delay={0.15} className="mt-14 lg:mt-16">
-          <div className="relative overflow-hidden rounded-[28px] bg-gradient-to-br from-brand-50 via-white to-brand-50/60 px-6 py-10 text-center shadow-[0_16px_50px_-24px_rgba(0,105,198,0.25)] sm:px-14 sm:py-12">
-            <div className="absolute -end-16 -top-16 h-48 w-48 rounded-full bg-brand-200/40 blur-3xl" />
-            <div className="absolute -start-16 -bottom-16 h-48 w-48 rounded-full bg-brand-200/30 blur-3xl" />
-
-            <div className="relative mx-auto max-w-xl">
-              <span className="text-3xl" aria-hidden>
-                💙
-              </span>
-              <p className="mt-4 text-xl font-bold tracking-tight text-surface-900 sm:text-2xl">
-                {t.home.zeroCommissionHighlightTitle}
-              </p>
-              <p className="mt-3 text-sm leading-relaxed text-surface-500 sm:text-base">
-                {t.home.zeroCommissionHighlightDesc}
-              </p>
-            </div>
-          </div>
-        </MotionSection>
+        <ZeroCommissionHighlightCard />
 
         <motion.div
           initial={{ opacity: 0, y: 24 }}

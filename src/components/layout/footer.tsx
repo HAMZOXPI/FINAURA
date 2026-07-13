@@ -1,20 +1,22 @@
 "use client";
 
 import Link from "next/link";
-import { Facebook, Instagram, Linkedin, Twitter } from "lucide-react";
+import { Facebook, Instagram } from "lucide-react";
 import { Logo } from "@/components/layout/logo";
 import { LanguageSwitcher } from "@/components/layout/language-switcher";
+import { useMobileChatFullscreen } from "@/components/messaging/mobile-chat-fullscreen-context";
 import { useTranslation } from "@/i18n/locale-provider";
 
 const SOCIAL_LINKS = [
   { href: "https://facebook.com", icon: Facebook, label: "Facebook" },
-  { href: "https://instagram.com", icon: Instagram, label: "Instagram" },
-  { href: "https://linkedin.com", icon: Linkedin, label: "LinkedIn" },
-  { href: "https://twitter.com", icon: Twitter, label: "X" },
+  { href: "https://www.instagram.com/finaura.ma/", icon: Instagram, label: "Instagram" },
 ];
 
 export function Footer() {
   const { t } = useTranslation();
+  const isMobileChatFullscreen = useMobileChatFullscreen();
+
+  if (isMobileChatFullscreen) return null;
 
   const footerLinks = {
     [t.footer.product]: [

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { ArrowRight, CheckCircle2, Rocket, Sparkles, TrendingUp } from "lucide-react";
+import { CheckCircle2, ChevronRight, Rocket, Sparkles, TrendingUp } from "lucide-react";
 import { useTranslation } from "@/i18n/locale-provider";
 
 const BOOST_CENTER_HREF = "/dashboard/boost";
@@ -55,7 +55,7 @@ export function PremiumBoostCtaCard() {
                 key={benefit}
                 className="inline-flex items-center gap-2 text-sm font-semibold text-surface-700"
               >
-                <CheckCircle2 className="h-4.5 w-4.5 shrink-0 text-brand-600" strokeWidth={2} />
+                <CheckCircle2 className="h-4.5 w-4.5 shrink-0 fill-[#F7D774]/25 text-[#C89211]" strokeWidth={2} />
                 {benefit}
               </span>
             ))}
@@ -65,29 +65,34 @@ export function PremiumBoostCtaCard() {
             {t.home.boostCtaNote}
           </p>
 
-          <div className="mt-7 flex flex-col items-start gap-3 sm:flex-row sm:items-center">
-            <motion.div whileTap={{ scale: 0.98 }}>
+          <div className="mt-7">
+            <motion.div
+              whileHover={{ y: -2 }}
+              whileTap={{ scale: 0.97 }}
+              transition={{ type: "spring", stiffness: 420, damping: 28 }}
+            >
               <Link
                 href={BOOST_CENTER_HREF}
-                className="group/btn relative inline-flex h-14 items-center justify-center gap-2 overflow-hidden rounded-full bg-gradient-to-r from-[#F7D774] via-[#E8BC3D] to-[#C89211] px-8 text-sm font-semibold text-white shadow-[0_14px_32px_-10px_rgba(200,146,17,0.48),0_4px_14px_-4px_rgba(247,215,116,0.32)] transition-[transform,box-shadow,filter] duration-[280ms] ease-out hover:-translate-y-0.5 hover:brightness-110 hover:shadow-[0_18px_40px_-8px_rgba(200,146,17,0.58),0_8px_22px_-4px_rgba(247,215,116,0.42)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/60 focus-visible:ring-offset-2"
+                className="group/btn relative inline-flex h-[3.75rem] items-center justify-center gap-3 overflow-hidden rounded-2xl border border-[#F5E6A8]/70 bg-gradient-to-br from-[#FFF8DC] via-[#F3D56B] via-45% to-[#C8941A] px-9 text-sm font-semibold text-[#1A1208] shadow-[0_1px_0_0_rgba(255,255,255,0.55)_inset,0_2px_6px_0_rgba(139,90,10,0.18)_inset,0_10px_28px_-6px_rgba(200,146,17,0.62),0_22px_52px_-14px_rgba(160,110,15,0.38)] transition-[box-shadow,filter] duration-300 ease-out hover:border-[#FAECC0]/90 hover:brightness-[1.03] hover:shadow-[0_1px_0_0_rgba(255,255,255,0.65)_inset,0_2px_8px_0_rgba(139,90,10,0.2)_inset,0_14px_36px_-4px_rgba(200,146,17,0.72),0_28px_60px_-12px_rgba(160,110,15,0.45)] active:brightness-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/60 focus-visible:ring-offset-2"
               >
                 <span
                   aria-hidden
-                  className="pointer-events-none absolute inset-y-0 start-0 w-[38%] bg-gradient-to-r from-transparent via-white/55 to-transparent [@media(hover:hover)]:group-hover/btn:animate-[ribbon-shine_1s_ease-in-out]"
+                  className="pointer-events-none absolute inset-x-0 top-0 h-[52%] rounded-t-2xl bg-gradient-to-b from-white/50 via-white/15 to-transparent"
                 />
-                <span className="relative z-[1] drop-shadow-[0_1px_1px_rgba(90,60,8,0.3)]">
-                  {t.home.boostCtaButton}
+                <span
+                  aria-hidden
+                  className="pointer-events-none absolute inset-y-0 start-0 w-[42%] bg-gradient-to-r from-transparent via-white/60 to-transparent [@media(hover:hover)]:group-hover/btn:animate-[ribbon-shine_1.1s_ease-in-out]"
+                />
+                <span className="relative z-[1] tracking-[0.01em]">{t.home.boostCtaButton}</span>
+                <span className="relative z-[1] flex shrink-0 items-center justify-center">
+                  <ChevronRight
+                    className="h-5 w-5 text-[#1A1208] transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover/btn:translate-x-1 group-active/btn:translate-x-1.5"
+                    strokeWidth={2.5}
+                    aria-hidden
+                  />
                 </span>
-                <ArrowRight className="relative z-[1] h-4 w-4 transition-transform duration-300 group-hover/btn:translate-x-0.5" />
               </Link>
             </motion.div>
-
-            <Link
-              href={BOOST_CENTER_HREF}
-              className="text-xs font-semibold text-brand-600 underline-offset-2 transition-colors hover:text-brand-700 hover:underline"
-            >
-              {t.home.boostCtaLearnMore}
-            </Link>
           </div>
         </div>
 

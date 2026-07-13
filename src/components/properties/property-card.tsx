@@ -17,8 +17,8 @@ import {
   getInitials,
   getPropertyStatusLabel,
 } from "@/lib/utils";
-import { PLACEHOLDER_IMAGE } from "@/lib/constants";
 import { FavoriteButton } from "@/components/properties/favorite-button";
+import { PropertyCardImage } from "@/components/properties/property-card-image";
 import { PropertyCardShareButton } from "@/components/properties/property-card-share-button";
 import { PropertyActionsSheet } from "@/components/properties/property-actions-sheet";
 import {
@@ -34,6 +34,8 @@ interface PropertyCardProps {
   premiumMeta?: PremiumDisplayMeta;
   /** Marks the image as above-the-fold to avoid lazy-load frame drops on first paint. */
   priority?: boolean;
+  /** First visible card on mobile — high fetch priority + async decoding. */
+  leadImage?: boolean;
 }
 
 function formatCardPrice(price: number, status: PropertyStatus, locale: Locale): string {
@@ -94,6 +96,7 @@ export function PropertyCard({
   variant = "grid",
   premiumMeta,
   priority = false,
+  leadImage = false,
 }: PropertyCardProps) {
   const { t, locale } = useTranslation();
   const router = useRouter();
@@ -155,18 +158,17 @@ export function PropertyCard({
             <div className="pointer-events-none absolute inset-y-0 start-0 z-[1] w-1 bg-gradient-to-b from-amber-300 via-amber-400 to-amber-500" />
           )}
           <Link href={detailHref} className="block h-full w-full" tabIndex={-1} aria-hidden>
-            <Image
-              src={property.images[0] || PLACEHOLDER_IMAGE}
+            <PropertyCardImage
+              src={property.images[0]}
               alt={property.title}
-              fill
               priority={priority}
-              loading={priority ? undefined : "lazy"}
+              leadImage={leadImage}
+              sizes="320px"
               className={cn(
-                "object-cover transition-all duration-[250ms] ease-out",
+                "transition-all duration-[250ms] ease-out",
                 styles.image,
                 styles.imageHover
               )}
-              sizes="320px"
             />
           </Link>
           <div className="absolute start-3 top-3 z-10 flex flex-wrap gap-2">
@@ -272,18 +274,17 @@ export function PropertyCard({
       >
         {isFeatured && <div className={styles.accent} aria-hidden />}
         <Link href={detailHref} className="block h-full w-full" tabIndex={-1} aria-hidden>
-          <Image
-            src={property.images[0] || PLACEHOLDER_IMAGE}
+          <PropertyCardImage
+            src={property.images[0]}
             alt={property.title}
-            fill
             priority={priority}
-            loading={priority ? undefined : "lazy"}
+            leadImage={leadImage}
+            sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 25vw"
             className={cn(
-              "object-cover transition-all duration-[250ms] ease-out",
+              "transition-all duration-[250ms] ease-out",
               styles.image,
               styles.imageHover
             )}
-            sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 25vw"
           />
         </Link>
 

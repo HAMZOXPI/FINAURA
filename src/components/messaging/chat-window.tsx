@@ -193,7 +193,7 @@ export function ChatWindow({
         showBackButton={showBackButton}
       />
 
-      <div className="relative min-h-0 flex-1">
+      <div className="relative flex min-h-0 flex-1 flex-col">
         <AnimatePresence>
           {floatingDate && (
             <motion.div
@@ -210,7 +210,7 @@ export function ChatWindow({
         <div
           ref={scrollRef}
           onScroll={handleScroll}
-          className="absolute inset-0 space-y-3 overflow-y-auto overscroll-contain px-3 py-4 sm:px-5"
+          className="min-h-0 flex-1 space-y-3 overflow-y-auto overscroll-contain px-3 py-4 sm:px-5"
         >
           {(messageGroups ?? []).map((group) => (
             <div key={group.key} className="space-y-3">

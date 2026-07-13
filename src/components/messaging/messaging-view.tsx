@@ -10,7 +10,9 @@ import { ConversationList } from "@/components/messaging/conversation-list";
 import { MessagingEmptyState } from "@/components/messaging/messaging-empty-state";
 import { MessagingInfoPanel } from "@/components/messaging/messaging-info-panel";
 import { MessagingSectionErrorBoundary } from "@/components/messaging/messaging-section-error-boundary";
+import { MobileChatFullscreenPortal } from "@/components/messaging/mobile-chat-fullscreen-portal";
 import { useMessagingPresence } from "@/hooks/use-online-presence";
+import { useMediaQuery } from "@/hooks/use-media-query";
 import { resolveOtherParticipant } from "@/lib/messaging/messaging-display";
 import { createClient } from "@/lib/supabase/client";
 import { useTranslation } from "@/i18n/locale-provider";
@@ -28,6 +30,7 @@ export function MessagingView({
   initialConversationId = null,
 }: MessagingViewProps) {
   const { t } = useTranslation();
+  const isMobile = useMediaQuery("(max-width: 767px)");
   const [conversations, setConversations] = useState(initialConversations ?? []);
   const [activeConversationId, setActiveConversationId] = useState<string | null>(
     initialConversationId ?? (initialConversations ?? [])[0]?.id ?? null
@@ -43,15 +46,14 @@ export function MessagingView({
   }, [initialConversations]);
 
   useEffect(() => {
-    const isMobileChat = mobileView === "chat" && window.matchMedia("(max-width: 767px)").matches;
-    if (!isMobileChat) return;
+    if (!isMobile || mobileView !== "chat") return;
 
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     return () => {
       document.body.style.overflow = previousOverflow;
     };
-  }, [mobileView]);
+  }, [mobileView, isMobile]);
 
   const activeConversation = useMemo(
     () => (conversations ?? []).find((item) => item?.id === activeConversationId) ?? null,
@@ -88,6 +90,52 @@ export function MessagingView({
 
   const hasConversations = (conversations ?? []).length > 0;
   const isMobileChatOpen = mobileView === "chat";
+  const showMobileChatOverlay = isMobile && isMobileChatOpen;
+
+  const chatPanelContent =
+    activeConversation && !loadingMessages ? (
+      <MessagingSectionErrorBoundary name="ChatWindow">
+        <ChatWindow
+          conversation={activeConversation}
+          initialMessages={messages ?? []}
+          currentUserId={userId}
+          showBackButton
+          onBack={() => setMobileView("list")}
+          onReadStateChange={(lastReadAt) => {
+            setConversations((current) =>
+              (current ?? []).map((item) =>
+                item?.id === activeConversation.id
+                  ? { ...item, other_last_read_at: lastReadAt, unread_count: 0 }
+                  : item
+              )
+            );
+          }}
+          onMessagesChange={(next) => setMessages(Array.isArray(next) ? next : [])}
+        />
+      </MessagingSectionErrorBoundary>
+    ) : activeConversation && loadingMessages ? (
+      <div className="flex h-full min-h-0 flex-1 flex-col overflow-hidden bg-white lg:min-h-[620px] lg:rounded-[24px] lg:border lg:border-white/70 lg:shadow-[0_16px_48px_-16px_rgba(0,0,0,0.12)]">
+        <div className="border-b border-surface-200 px-5 py-4">
+          <div className="h-5 w-40 animate-pulse rounded-lg bg-surface-200" />
+          <div className="mt-2 h-3 w-24 animate-pulse rounded bg-surface-100" />
+        </div>
+        <ChatMessageSkeleton />
+      </div>
+    ) : (
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="hidden h-full min-h-[620px] flex-col items-center justify-center rounded-[24px] border border-dashed border-surface-300/80 bg-white/85 px-6 text-center shadow-sm backdrop-blur-xl md:flex"
+      >
+        <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-brand-50 shadow-sm">
+          <MessageSquare className="h-8 w-8 text-brand-600" />
+        </div>
+        <h3 className="text-lg font-bold text-surface-900">{t.messaging.selectConversation}</h3>
+        <p className="mt-2 max-w-sm text-sm text-surface-500">
+          {t.messaging.selectConversationHint}
+        </p>
+      </motion.div>
+    );
 
   return (
     <div className="grid min-h-0 gap-4 md:min-h-[680px] md:grid-cols-[300px_minmax(0,1fr)] md:gap-5 xl:grid-cols-[300px_minmax(0,1fr)_300px]">
@@ -113,58 +161,11 @@ export function MessagingView({
         )}
       </div>
 
-      <div
-        className={cn(
-          "min-h-0",
-          isMobileChatOpen
-            ? "fixed inset-0 z-[60] flex h-[100dvh] max-h-[100dvh] flex-col bg-white md:static md:z-auto md:block md:h-auto md:max-h-none"
-            : "hidden min-h-[480px] md:block md:min-h-[620px]"
-        )}
-      >
-        {activeConversation && !loadingMessages ? (
-          <MessagingSectionErrorBoundary name="ChatWindow">
-            <ChatWindow
-              conversation={activeConversation}
-              initialMessages={messages ?? []}
-              currentUserId={userId}
-              showBackButton
-              onBack={() => setMobileView("list")}
-              onReadStateChange={(lastReadAt) => {
-                setConversations((current) =>
-                  (current ?? []).map((item) =>
-                    item?.id === activeConversation.id
-                      ? { ...item, other_last_read_at: lastReadAt, unread_count: 0 }
-                      : item
-                  )
-                );
-              }}
-              onMessagesChange={(next) => setMessages(Array.isArray(next) ? next : [])}
-            />
-          </MessagingSectionErrorBoundary>
-        ) : activeConversation && loadingMessages ? (
-          <div className="flex h-full min-h-0 flex-1 flex-col overflow-hidden bg-white lg:min-h-[620px] lg:rounded-[24px] lg:border lg:border-white/70 lg:shadow-[0_16px_48px_-16px_rgba(0,0,0,0.12)]">
-            <div className="border-b border-surface-200 px-5 py-4">
-              <div className="h-5 w-40 animate-pulse rounded-lg bg-surface-200" />
-              <div className="mt-2 h-3 w-24 animate-pulse rounded bg-surface-100" />
-            </div>
-            <ChatMessageSkeleton />
-          </div>
-        ) : (
-          <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="hidden h-full min-h-[620px] flex-col items-center justify-center rounded-[24px] border border-dashed border-surface-300/80 bg-white/85 px-6 text-center shadow-sm backdrop-blur-xl md:flex"
-          >
-            <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-brand-50 shadow-sm">
-              <MessageSquare className="h-8 w-8 text-brand-600" />
-            </div>
-            <h3 className="text-lg font-bold text-surface-900">{t.messaging.selectConversation}</h3>
-            <p className="mt-2 max-w-sm text-sm text-surface-500">
-              {t.messaging.selectConversationHint}
-            </p>
-          </motion.div>
-        )}
-      </div>
+      {showMobileChatOverlay ? (
+        <MobileChatFullscreenPortal open>{chatPanelContent}</MobileChatFullscreenPortal>
+      ) : (
+        <div className="hidden min-h-0 md:block md:min-h-[620px]">{chatPanelContent}</div>
+      )}
 
       {activeConversation && !loadingMessages && (
         <MessagingSectionErrorBoundary name="MessagingInfoPanel">

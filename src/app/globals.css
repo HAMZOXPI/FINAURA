@@ -81,6 +81,112 @@
   }
 }
 
+@keyframes cta-ambient-glow {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: scale3d(1, 1, 1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale3d(1.06, 1.06, 1);
+  }
+}
+
+@keyframes cta-float-slow {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  33% {
+    transform: translate3d(14px, -20px, 0);
+  }
+  66% {
+    transform: translate3d(-10px, 12px, 0);
+  }
+}
+
+@keyframes cta-float-drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(-16px, -14px, 0) scale(1.1);
+  }
+}
+
+@keyframes cta-sparkle-pulse {
+  0%,
+  100% {
+    opacity: 0.12;
+    transform: scale3d(1, 1, 1);
+  }
+  50% {
+    opacity: 0.42;
+    transform: scale3d(1.25, 1.25, 1);
+  }
+}
+
+@keyframes cta-border-shimmer {
+  0%,
+  100% {
+    background-position: 0% 50%;
+    opacity: 0.35;
+  }
+  50% {
+    background-position: 100% 50%;
+    opacity: 0.75;
+  }
+}
+
+@keyframes value-icon-float {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(0, -7px, 0);
+  }
+}
+
+@keyframes value-glow-drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 0.45;
+  }
+  50% {
+    transform: translate3d(14px, -10px, 0) scale(1.07);
+    opacity: 0.72;
+  }
+}
+
+@keyframes value-particle-float {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  33% {
+    transform: translate3d(12px, -16px, 0);
+  }
+  66% {
+    transform: translate3d(-9px, 10px, 0);
+  }
+}
+
+@keyframes value-sparkle-pulse {
+  0%,
+  100% {
+    opacity: 0.04;
+    transform: scale3d(1, 1, 1);
+  }
+  50% {
+    opacity: 0.09;
+    transform: scale3d(1.2, 1.2, 1);
+  }
+}
+
 .finaura-price-marker-wrapper {
   background: transparent !important;
   border: 0 !important;
@@ -152,8 +258,190 @@
   }
 }
 
+@keyframes categories-swipe-hint {
+  0%,
+  100% {
+    transform: translateX(10px);
+  }
+  50% {
+    transform: translateX(-10px);
+  }
+}
+
+.animate-categories-swipe-hint {
+  animation: categories-swipe-hint 2s ease-in-out infinite;
+}
+
 .premium-crown-float {
   animation: premium-crown-float 4.5s ease-in-out infinite;
+}
+
+/* Mobile hero — premium ambient background (no visible blobs) */
+.hero-premium-bg {
+  z-index: 0;
+  isolation: isolate;
+  overflow: hidden;
+  background: #061018;
+}
+
+.hero-premium-ambient {
+  pointer-events: none;
+  will-change: transform, opacity;
+  transform: translate3d(0, 0, 0);
+}
+
+.hero-premium-ambient--base {
+  z-index: 0;
+  background: linear-gradient(165deg, #071524 0%, #0b2240 42%, #061018 100%);
+}
+
+.hero-premium-ambient--field-blue {
+  z-index: 1;
+  opacity: 0.9;
+  background:
+    radial-gradient(ellipse 150% 110% at 28% 12%, rgba(28, 108, 178, 0.34) 0%, rgba(14, 78, 138, 0.14) 46%, transparent 74%),
+    radial-gradient(ellipse 130% 95% at 82% 58%, rgba(18, 92, 158, 0.2) 0%, rgba(10, 52, 96, 0.08) 50%, transparent 80%),
+    radial-gradient(ellipse 120% 85% at 48% 100%, rgba(12, 64, 118, 0.24) 0%, transparent 68%),
+    linear-gradient(180deg, rgba(8, 36, 68, 0.18) 0%, transparent 55%, rgba(6, 20, 36, 0.12) 100%);
+  animation: hero-ambient-blue 32s ease-in-out infinite;
+}
+
+.hero-premium-ambient--field-white {
+  z-index: 2;
+  opacity: 0.52;
+  background:
+    radial-gradient(ellipse 140% 100% at 68% 8%, rgba(255, 255, 255, 0.1) 0%, rgba(210, 228, 248, 0.04) 48%, transparent 72%),
+    radial-gradient(ellipse 120% 90% at 18% 48%, rgba(255, 255, 255, 0.05) 0%, transparent 62%),
+    linear-gradient(205deg, transparent 0%, rgba(255, 255, 255, 0.03) 50%, transparent 100%);
+  animation: hero-ambient-white 40s ease-in-out infinite;
+}
+
+.hero-premium-ambient--field-warm {
+  z-index: 3;
+  opacity: 0.42;
+  background:
+    radial-gradient(ellipse 140% 90% at 52% 96%, rgba(168, 128, 52, 0.07) 0%, rgba(120, 88, 36, 0.03) 42%, transparent 70%),
+    linear-gradient(0deg, rgba(100, 76, 32, 0.04) 0%, transparent 38%);
+  animation: hero-ambient-warm 48s ease-in-out infinite;
+}
+
+.hero-premium-ambient--grain {
+  z-index: 4;
+  opacity: 0.32;
+  background:
+    linear-gradient(
+      112deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.014) 18%,
+      transparent 36%,
+      rgba(72, 132, 196, 0.02) 58%,
+      transparent 76%,
+      rgba(255, 255, 255, 0.01) 92%,
+      transparent 100%
+    ),
+    linear-gradient(
+      22deg,
+      transparent 8%,
+      rgba(255, 255, 255, 0.01) 44%,
+      transparent 82%
+    ),
+    linear-gradient(
+      168deg,
+      transparent 20%,
+      rgba(40, 100, 160, 0.015) 55%,
+      transparent 88%
+    );
+  animation: hero-ambient-grain 36s ease-in-out infinite;
+}
+
+.hero-premium-ambient--breathe {
+  z-index: 5;
+  opacity: 0.4;
+  background: radial-gradient(
+    ellipse 95% 70% at 50% 38%,
+    rgba(36, 108, 176, 0.1) 0%,
+    rgba(20, 68, 120, 0.04) 45%,
+    transparent 72%
+  );
+  animation: hero-ambient-breathe 28s ease-in-out infinite;
+}
+
+.hero-premium-vignette {
+  z-index: 6;
+  pointer-events: none;
+  background: radial-gradient(ellipse at center, transparent 46%, rgba(6, 16, 28, 0.52) 100%);
+}
+
+@keyframes hero-ambient-blue {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 0.86;
+  }
+  50% {
+    transform: translate3d(-5px, 3px, 0) scale(1.012);
+    opacity: 0.96;
+  }
+}
+
+@keyframes hero-ambient-white {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 0.48;
+  }
+  50% {
+    transform: translate3d(6px, 4px, 0) scale(1.01);
+    opacity: 0.58;
+  }
+}
+
+@keyframes hero-ambient-warm {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 0.36;
+  }
+  50% {
+    transform: translate3d(3px, -4px, 0) scale(1.008);
+    opacity: 0.46;
+  }
+}
+
+@keyframes hero-ambient-grain {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 0.26;
+  }
+  50% {
+    transform: translate3d(2px, -2px, 0) scale(1.006);
+    opacity: 0.34;
+  }
+}
+
+@keyframes hero-ambient-breathe {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 0.34;
+  }
+  50% {
+    transform: translate3d(0, 0, 0) scale(1.018);
+    opacity: 0.5;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-premium-ambient--field-blue,
+  .hero-premium-ambient--field-white,
+  .hero-premium-ambient--field-warm,
+  .hero-premium-ambient--grain,
+  .hero-premium-ambient--breathe {
+    animation: none !important;
+    will-change: auto;
+    transform: none;
+  }
 }
 
 .finaura-cluster-marker-wrapper {

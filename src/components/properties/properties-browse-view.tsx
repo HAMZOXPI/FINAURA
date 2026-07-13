@@ -324,6 +324,7 @@ export function PropertiesBrowseView({
                         property={property}
                         variant={viewMode}
                         priority={index < 4}
+                        leadImage={index === 0}
                       />
                     </motion.div>
                   ))}

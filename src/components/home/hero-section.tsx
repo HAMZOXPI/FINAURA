@@ -29,33 +29,33 @@ export function HeroSection() {
     <section className="relative min-h-[88vh] max-md:min-h-0 lg:min-h-[92vh]">
 
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        {/* Mobile premium animated background */}
+        <div className="hero-premium-bg absolute inset-0 z-0 md:hidden" aria-hidden>
+          <div className="hero-premium-ambient hero-premium-ambient--base absolute inset-0" />
+          <div className="hero-premium-ambient hero-premium-ambient--field-blue absolute inset-0" />
+          <div className="hero-premium-ambient hero-premium-ambient--field-white absolute inset-0" />
+          <div className="hero-premium-ambient hero-premium-ambient--field-warm absolute inset-0" />
+          <div className="hero-premium-ambient hero-premium-ambient--grain absolute inset-0" />
+          <div className="hero-premium-ambient hero-premium-ambient--breathe absolute inset-0" />
+          <div className="hero-premium-vignette absolute inset-0" />
+        </div>
 
-        <Image
+        {/* Desktop background */}
+        <div className="absolute inset-0 max-md:hidden">
+          <Image
+            src={HERO_IMAGE}
+            alt="Immobilier au Maroc"
+            fill
+            priority
+            className="scale-105 object-cover object-center"
+            sizes="100vw"
+          />
 
-          src={HERO_IMAGE}
-
-          alt="Immobilier au Maroc"
-
-          fill
-
-          priority
-
-          className="scale-105 object-cover object-center"
-
-          sizes="100vw"
-
-        />
-
-
-
-        <div className="absolute inset-0 bg-black/55 backdrop-blur-[1px]" />
-
-        <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/55 to-black/85" />
-
-        <div className="absolute inset-0 bg-gradient-to-r from-brand-950/70 via-black/20 to-brand-900/50" />
-
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_transparent_0%,_rgba(0,0,0,0.35)_100%)]" />
-
+          <div className="absolute inset-0 bg-black/55 backdrop-blur-[1px]" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/55 to-black/85" />
+          <div className="absolute inset-0 bg-gradient-to-r from-brand-950/70 via-black/20 to-brand-900/50" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_transparent_0%,_rgba(0,0,0,0.35)_100%)]" />
+        </div>
       </div>
 
 

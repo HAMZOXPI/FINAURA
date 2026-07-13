@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, type ReactNode } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import {
@@ -20,6 +20,7 @@ import { useMediaQuery } from "@/hooks/use-media-query";
 import { PROPERTY_TYPE_VALUES } from "@/lib/constants";
 import { cn, getPropertyTypeLabel } from "@/lib/utils";
 import { MotionSection, MotionItem } from "@/components/home/motion-section";
+import { CategoriesSwipeHint } from "@/components/home/categories-swipe-hint";
 
 const CATEGORY_ICONS: Record<PropertyType, typeof Building2> = {
   appartement: Building2,
@@ -86,9 +87,11 @@ const SCROLL_HINT_HOLD_MS = 600;
 function CategoryCardsScroller({
   children,
   className,
+  onScrollerRef,
 }: {
   children: ReactNode;
   className?: string;
+  onScrollerRef?: (el: HTMLDivElement | null) => void;
 }) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const hintActiveRef = useRef(false);
@@ -197,9 +200,17 @@ function CategoryCardsScroller({
     };
   }, [isMobile, clearHintTimeouts, markHintDone, runScrollHint]);
 
+  const assignScrollRef = useCallback(
+    (node: HTMLDivElement | null) => {
+      scrollRef.current = node;
+      onScrollerRef?.(node);
+    },
+    [onScrollerRef]
+  );
+
   return (
     <motion.div
-      ref={scrollRef}
+      ref={assignScrollRef}
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true, margin: "-60px" }}
@@ -216,6 +227,7 @@ function CategoryCardsScroller({
 
 export function CategoriesSection() {
   const { t } = useTranslation();
+  const [scrollerEl, setScrollerEl] = useState<HTMLDivElement | null>(null);
 
   return (
     <section className="bg-white py-20 lg:py-28">
@@ -231,14 +243,16 @@ export function CategoriesSection() {
           <p className="mt-4 text-lg text-surface-500">{t.home.categoriesSubtitle}</p>
         </MotionSection>
 
-        <CategoryCardsScroller
-          className={cn(
-            "mt-16 gap-4",
-            "flex snap-x snap-mandatory overflow-x-auto pb-3",
-            "-mx-4 px-4 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden",
-            "md:mx-0 md:grid md:grid-cols-2 md:overflow-visible md:px-0 md:pb-0 lg:grid-cols-4 lg:gap-5"
-          )}
-        >
+        <div className="relative mt-16 max-md:pt-10">
+          <CategoryCardsScroller
+            onScrollerRef={setScrollerEl}
+            className={cn(
+              "gap-4",
+              "flex snap-x snap-mandatory overflow-x-auto pb-3",
+              "-mx-4 px-4 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden",
+              "md:mx-0 md:grid md:grid-cols-2 md:overflow-visible md:px-0 md:pb-0 lg:grid-cols-4 lg:gap-5"
+            )}
+          >
           {PROPERTY_TYPE_VALUES.map((type, index) => {
             const Icon = CATEGORY_ICONS[type];
             const style = CATEGORY_STYLES[index % CATEGORY_STYLES.length];
@@ -309,7 +323,10 @@ export function CategoriesSection() {
               </MotionItem>
             );
           })}
-        </CategoryCardsScroller>
+          </CategoryCardsScroller>
+
+          <CategoriesSwipeHint scrollerEl={scrollerEl} />
+        </div>
       </div>
     </section>
   );
